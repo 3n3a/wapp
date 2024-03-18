@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TODO: replace</title>
+    <link rel="icon" href="/public/assets/icon.svg" style="color: #4d7c0f;">
+    <link rel="mask-icon" href="/public/assets/icon.svg" color="#4d7c0f">
+    {{ template "imports/styles" .}}
+    {{ template "imports/scripts" .}}
+  </head>
+
+  <body hex-ext="morphdom-swap" class="site">
+    {{template "partials/header" .}} 
+    <div class="row-grow">
+      <div
+        class="menu-container"
+        hx-boost="true"
+      >
+        <!-- {{range .page.MenuItems}} 
+            {{if .Active}}
+                <div class="menu-item-active">
+                <a class="p-4 w-full" href="{{ .Link }}"> {{ .Name }} </a>
+                </div>
+            {{else}}
+                <div class="menu-item">
+                <a class="p-4 w-full" href="{{ .Link }}"> {{ .Name }} </a>
+                </div>
+            {{end}}
+        {{end}} -->
+      </div>
+
+      <div class="responsive-container">
+        <div class="flex-grow text-black">
+          <h1 class="page-title">TODO: replace</h1>
+          {{embed}}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
