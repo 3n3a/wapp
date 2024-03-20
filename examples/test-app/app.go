@@ -14,9 +14,16 @@ func main() {
 		},
 	})
 	// "/test" and "/test/"
-	testModule := wapp.NewModule(wapp.ModuleConfig{Name: "TestModule", PathName: "test"})
+	testModule := wapp.NewModule(wapp.ModuleConfig{
+    Name: "TestModule", 
+    PathName: "test"
+  })
 	// "/test/sub"
-	testSubModule := wapp.NewModule(wapp.ModuleConfig{Name: "TestSubModule", PathName: "sub", Method: "POST"})
+	testSubModule := wapp.NewModule(wapp.ModuleConfig{
+    Name: "TestSubModule", 
+    PathName: "sub", 
+    Method: "POST"
+  })
 	testModule.Register(testSubModule)
 	w.Register(testModule)
 	w.Start()
