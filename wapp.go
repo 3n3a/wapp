@@ -74,7 +74,7 @@ type Wapp struct {
 	// Root Module
 	rootModule *Module // provides layout and container for submodules
 	// Error Module
-	errorModule *Module
+	errorModule *ErrorModule
 }
 
 // init executes initial functions for wapp
@@ -154,8 +154,11 @@ func (w *Wapp) init() {
 
 	// TODO: how could i emebed these?
 	fiberConfig.Views = engine
-	fiberConfig.ViewsLayout = "layout"
-	
+	fiberConfig.ViewsLayout = "./layout"
+
+	// Error Handling
+	fiberConfig.ErrorHandler = w.errorModule.errorHandler
+
 	// TODO: allow custom fiber config
 	fiberConfig.ServerHeader = "Wapp"
 	w.ffiber = fiber.New(fiberConfig)
@@ -196,20 +199,27 @@ func (w *Wapp) init() {
 	// Static
 	// TODO: embed and add path to config
 	w.ffiber.Static("/public", "./public")
-
-	// Error
-	w.ffiber.Use(w.errorModule.handler)
 }
 
 // recursively process all submodules and create tree
 func (w *Wapp) processModules(modules []*Module) {
 	parallel.ForEach(modules, func(currModule *Module) {
-		// add handler
-		w.ffiber.Add(
-			currModule.config.Method,
-			currModule.GetFullPath(),
-			currModule.handler,
-		)
+		currModule.OnBeforeProcess()		
+
+		// ...processing
+		if currModule.config.Method == HTTPMethodAll {
+			w.ffiber.All(
+				currModule.GetFullPath(),
+				currModule.handler,
+			)
+		} else {
+			// add handler
+			w.ffiber.Add(
+				string(currModule.config.Method),
+				currModule.GetFullPath(),
+				currModule.handler,
+			)
+		}
 
 		// TODO: additional processing for module like menu building etc.
 	
