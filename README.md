@@ -23,3 +23,16 @@ well i wanted to build a front-/backend web framework.
 	* have validation options for endpoint
 	* have data transformation options
 
+## architecture
+
+![](./.github/assets/wapp-architecture.svg)
+
+### example request
+
+explanation to the numbers in image below:
+
+1. pre transform before retrieval
+2. retrieval / another transformation (calculation ...)
+3. post transform after retrieval
+
+![](./.github/assets/wapp-example-request.svg)
