@@ -36,7 +36,7 @@ func DefaultErrorModule() *ErrorModule {
 
 		c.Context().Logger().Printf("Error: %#v", err)
 		return c.Status(500).
-			Render("views/error", nil)
+			Render("frontend/views/error", nil)
 			// SendString(fmt.Sprintf("Error: %#v", err))
 	}
 

@@ -22,7 +22,7 @@ func New() *wapp.Module {
 		wapp.ActionRenderData(wapp.DataTypeHTML, wapp.Map{
 			"url": "sfdlfkjdlfj",
 			"url2": "skldjflk213123l",
-		}, "views/root"),
+		}, "frontend/views/root"),
 	)
 
 	// Add Submodules

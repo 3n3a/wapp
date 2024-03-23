@@ -1,0 +1,7 @@
+# Bundled assets
+public/assets/
+
+## custom
+*.env
+!*.template.env
+tmp

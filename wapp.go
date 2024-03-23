@@ -25,7 +25,7 @@ import (
 	"github.com/smirzaei/parallel"
 )
 
-//go:embed views/* public/*
+//go:embed frontend/public/* frontend/views/*
 var viewsfs embed.FS
 
 // builds on gofiber, tailwindcss
@@ -160,7 +160,7 @@ func (w *Wapp) init() {
 
 	// TODO: how could i emebed these?
 	fiberConfig.Views = engine
-	fiberConfig.ViewsLayout = "views/layout"
+	fiberConfig.ViewsLayout = "frontend/views/layout"
 
 	// Error Handling
 	fiberConfig.ErrorHandler = w.errorModule.errorHandler
@@ -204,7 +204,7 @@ func (w *Wapp) init() {
 
 	// Static
 	// TODO: embed and add path to config
-	w.ffiber.Static("/public", "public")
+	w.ffiber.Static("/public", "frontend/public")
 }
 
 // recursively process all submodules and create tree
