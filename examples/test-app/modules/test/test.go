@@ -22,7 +22,7 @@ func New() *wapp.Module {
 		wapp.ActionRenderDataAccept(wapp.Map{
 			"url": "sfdlfkjdlfj",
 			"url2": "skldjflk213123l",
-		}, "root"),
+		}, "table"),
 	)
 
 	// Add Submodules

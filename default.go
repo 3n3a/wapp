@@ -3,6 +3,7 @@ package wapp
 import (
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -202,6 +203,12 @@ func renderHTML(templateName []string, data interface{}, ac *ActionCtx) error {
 		}
 		if dataMap, ok := isMap(data); ok {
 			dataMap["_internal"] = ac.WappConfig
+
+			if templateName_ == "table" {
+				// TODO: transform key value into table format for displaying ...
+				dataMap["KeyValues"] = maps
+			}
+
 			return ac.Status(200).Render(templateName_, dataMap)
 		}
 		return ac.Status(200).Render(templateName_, data)

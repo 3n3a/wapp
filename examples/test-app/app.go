@@ -9,6 +9,7 @@ import (
 func main() {
 	// with config
 	w := wapp.New(wapp.Config{
+		Name: "Test Wapp",
 		CoreModules: []wapp.CoreModule{
 			wapp.Recover,
 			wapp.Logger,
