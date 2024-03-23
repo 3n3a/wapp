@@ -4,13 +4,9 @@ import (
 	"embed"
 	"errors"
 	"fmt"
-	"html/template"
-	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
-	"os"
-	"path/filepath"
 	"regexp"
 	"slices"
 	"strings"
@@ -19,14 +15,18 @@ import (
 	fiber "github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/compress"
+	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/template/html/v2"
 	"github.com/smirzaei/parallel"
 )
 
-//go:embed frontend/public/* frontend/views/*
+//go:embed frontend/views/*
 var viewsfs embed.FS
+
+//go:embed frontend/public/* frontend/public/assets/*
+var staticfs embed.FS
 
 // builds on gofiber, tailwindcss
 //
@@ -98,66 +98,6 @@ func (w *Wapp) init() {
 		".html",
 	)
 
-	engine.AddFunc("getCssAsset", func(name string) (res template.HTML) {
-		filepath.Walk("public/assets", func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			if info.Name() == name {
-				res = template.HTML("<link rel=\"stylesheet\" href=\"/" + path + "\">")
-			}
-			return nil
-		})
-		return
-	})
-
-	engine.AddFunc("getJsAsset", func(name string) (res template.HTML) {
-		filepath.Walk("public/assets", func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			if info.Name() == name {
-				res = template.HTML("<script src=\"/" + path + "\"></script>")
-			}
-			return nil
-		})
-		return
-	})
-
-	engine.AddFunc("getCssInline", func(name string) (res template.HTML) {
-		filepath.Walk("public/assets", func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			if info.Name() == name {
-				data, err := ioutil.ReadFile(path)
-				if err != nil {
-					return err	
-				}
-				res = template.HTML("<style>" + string(data) + "</style>")
-			}
-			return nil
-		})
-		return
-	})
-
-	engine.AddFunc("getJsInline", func(name string) (res template.HTML) {
-		filepath.Walk("public/assets", func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			if info.Name() == name {
-				data, err := ioutil.ReadFile(path)
-				if err != nil {
-					return err	
-				}
-				res = template.HTML("<script>" + string(data) + "</script>")
-			}
-			return nil
-		})
-		return
-	})
-
 	// TODO: how could i emebed these?
 	fiberConfig.Views = engine
 	fiberConfig.ViewsLayout = "frontend/views/layout"
@@ -202,9 +142,15 @@ func (w *Wapp) init() {
 		w.ffiber.Use(compress.New())
 	}
 
+	// embedded fs
+	w.ffiber.Use(filesystem.New(filesystem.Config{
+		Root: http.FS(staticfs),
+		PathPrefix: "frontend",
+		Browse: false,
+	}))
+
 	// Static
-	// TODO: embed and add path to config
-	w.ffiber.Static("/public", "frontend/public")
+	w.ffiber.Static("/public", "public")
 }
 
 // recursively process all submodules and create tree
