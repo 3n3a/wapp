@@ -136,7 +136,7 @@ func (m *Module) buildHandler() {
 		for _, a := range m.Actions {
 			err := a.f(actionCtx) // call func in action
 			if err != nil {
-				logger.Fatalf("Error: %#v\n", err)
+				logger.Printf("Error: %#v\n", err)
 				return err
 			}
 		}

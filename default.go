@@ -1,7 +1,8 @@
 package wapp
 
 import (
-	"fmt"
+	"encoding/xml"
+	"errors"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -28,16 +29,15 @@ func DefaultRootModule() *Module {
 func DefaultErrorModule() *ErrorModule {
 	m := NewErrorModule(ModuleConfig{
 		Name:         "DefaultErrorModule",
-		InternalName: "error",
-		Method:       HTTPMethodAll,
 	})
 
 	m.errorHandler = func(c *fiber.Ctx, err error) error {
 		// TODO: if datatype x --> return error in type x
 
+		c.Context().Logger().Printf("Error: %#v", err)
 		return c.Status(500).
-			SendString(fmt.Sprintf("Error: %#v", err))
-		// Render("error", nil, "layout")
+			Render("views/error", nil)
+			// SendString(fmt.Sprintf("Error: %#v", err))
 	}
 
 	return m
@@ -76,10 +76,6 @@ func getAllFormValues(ac *ActionCtx) (map[string]string, error) {
 // Name Field: ac.Store.GetString("name")
 func ActionLoadFormValues() *Action {
 	a := NewAction(func(ac *ActionCtx) error {
-		// TOOD: extrapolate into function
-
-		// END TODO
-
 		values, err := getAllFormValues(ac)
 		if err != nil {
 			return err
@@ -87,6 +83,77 @@ func ActionLoadFormValues() *Action {
 
 		for key, val := range values {
 			ac.Store.SetString(key, val)
+		}
+
+		return nil
+	})
+
+	return a
+}
+
+// func isString(val interface{}) (string, bool) {
+// 	if str, ok := val.(string); ok {
+// 		return str, true
+// 	}
+// 	return "", false
+// }
+
+func isMap(val interface{}) (Map, bool) {
+	if m, ok := val.(Map); ok {
+		return m, true
+	}
+
+	return nil, false
+}
+
+type XMLKeyValue struct {
+	XMLName xml.Name    `xml:"KeyValue"`
+	Name    string      `xml:"key,attr"`
+	Value   interface{} `xml:",chardata"`
+}
+
+// Create a struct to represent the KeyValues element
+type XMLKeyValues struct {
+	XMLName   xml.Name      `xml:"KeyValues"`
+	KeyValues []XMLKeyValue `xml:"KeyValue"`
+}
+
+func transformMapXML(m Map) (XMLKeyValues, error) {
+	var kvs XMLKeyValues
+	for key, val := range m {
+		kvs.KeyValues = append(
+			kvs.KeyValues,
+			XMLKeyValue{
+				Name:	 key,
+				Value:   val,
+			},
+		)
+	}
+	return kvs, nil
+}
+
+// Renders a given Map with a given DataType
+func ActionRenderData(dataType DataType, data interface{}, templateName ...string) *Action {
+	a := NewAction(func(ac *ActionCtx) error {
+		switch dataType {
+		case DataTypeHTML:
+			if len(templateName) > 0 {
+				return ac.Render(templateName[0], data)
+			}
+			return errors.New("please input a templateName for HTML Data Type")
+		case DataTypeJSON:
+			return ac.JSON(data)
+		case DataTypeXML:
+			if dataMap, ok := isMap(data); ok {
+				// transform
+				m, err := transformMapXML(dataMap)
+				if err != nil {
+					return err
+				}
+				return ac.XMLWithHeader(m)
+			} else {
+				return ac.XML(data)
+			}
 		}
 
 		return nil

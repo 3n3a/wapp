@@ -1,12 +1,14 @@
 package wapp
 
 import (
+	"embed"
 	"errors"
 	"fmt"
 	"html/template"
 	"io/ioutil"
 	"log"
 	"net"
+	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -22,6 +24,9 @@ import (
 	"github.com/gofiber/template/html/v2"
 	"github.com/smirzaei/parallel"
 )
+
+//go:embed views/* public/*
+var viewsfs embed.FS
 
 // builds on gofiber, tailwindcss
 //
@@ -87,10 +92,11 @@ func (w *Wapp) init() {
 	w.rootModule = DefaultRootModule()
 	w.errorModule = DefaultErrorModule()
 
-	// TODO: put in function
-	// init html engine
-	// TODO: view path in config
-	engine := html.New("./views", ".html")
+	// create html engine
+	engine := html.NewFileSystem(
+		http.FS(viewsfs),
+		".html",
+	)
 
 	engine.AddFunc("getCssAsset", func(name string) (res template.HTML) {
 		filepath.Walk("public/assets", func(path string, info os.FileInfo, err error) error {
@@ -154,7 +160,7 @@ func (w *Wapp) init() {
 
 	// TODO: how could i emebed these?
 	fiberConfig.Views = engine
-	fiberConfig.ViewsLayout = "./layout"
+	fiberConfig.ViewsLayout = "views/layout"
 
 	// Error Handling
 	fiberConfig.ErrorHandler = w.errorModule.errorHandler
@@ -198,7 +204,7 @@ func (w *Wapp) init() {
 
 	// Static
 	// TODO: embed and add path to config
-	w.ffiber.Static("/public", "./public")
+	w.ffiber.Static("/public", "public")
 }
 
 // recursively process all submodules and create tree

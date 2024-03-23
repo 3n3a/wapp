@@ -9,7 +9,7 @@ import (
 func New() *wapp.Module {
 	// Configure Module
 	testModule := wapp.NewModule(wapp.ModuleConfig{
-		Name:         "Test Module",
+		Name: "Test Module",
 	})
 
 	// Actions
@@ -19,11 +19,10 @@ func New() *wapp.Module {
 			err := ac.Store.SetString("url2", "https://"+"google.com")
 			return err
 		}),
-		wapp.NewAction(func(ac *wapp.ActionCtx) error {
-			url, _ := ac.Store.GetString("url")
-			url2, _ := ac.Store.GetString("url2")
-			return ac.SendString(url + url2)
-		}),
+		wapp.ActionRenderData(wapp.DataTypeHTML, wapp.Map{
+			"url": "sfdlfkjdlfj",
+			"url2": "skldjflk213123l",
+		}, "views/root"),
 	)
 
 	// Add Submodules

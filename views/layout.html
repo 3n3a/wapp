@@ -6,12 +6,12 @@
     <title>TODO: replace</title>
     <link rel="icon" href="/public/assets/icon.svg" style="color: #4d7c0f;">
     <link rel="mask-icon" href="/public/assets/icon.svg" color="#4d7c0f">
-    {{ template "imports/styles" .}}
-    {{ template "imports/scripts" .}}
+    {{ template "views/imports/styles" .}}
+    {{ template "views/imports/scripts" .}}
   </head>
 
-  <body hex-ext="morphdom-swap" class="site">
-    {{template "partials/header" .}} 
+  <body hx-ext="morphdom-swap" class="site">
+    {{template "views/partials/header" .}} 
     <div class="row-grow">
       <div
         class="menu-container"
