@@ -10,14 +10,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type ActionType string
-
-const (
-	ActionTypePre ActionType = "pre"
-	ActionTypeMain ActionType = "main"
-	ActionTypePost ActionType = "post"
-)
-
 type KV struct {
 	store map[string][]byte
 }

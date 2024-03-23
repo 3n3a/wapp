@@ -11,9 +11,9 @@ import (
 // TODO: add default modules for root, error and layout
 func DefaultRootModule() *Module {
 	m := NewModule(ModuleConfig{
-		Name: "DefaultRootModule",
-		PathName: "",
-		IsRoot: true,
+		Name:         "DefaultRootModule",
+		InternalName: "",
+		IsRoot:       true,
 	})
 
 	// TODO: fix
@@ -27,17 +27,17 @@ func DefaultRootModule() *Module {
 
 func DefaultErrorModule() *ErrorModule {
 	m := NewErrorModule(ModuleConfig{
-		Name: "DefaultErrorModule",
-		PathName: "error",
-		Method: HTTPMethodAll,
+		Name:         "DefaultErrorModule",
+		InternalName: "error",
+		Method:       HTTPMethodAll,
 	})
 
 	m.errorHandler = func(c *fiber.Ctx, err error) error {
 		// TODO: if datatype x --> return error in type x
-		
+
 		return c.Status(500).
 			SendString(fmt.Sprintf("Error: %#v", err))
-			// Render("error", nil, "layout")
+		// Render("error", nil, "layout")
 	}
 
 	return m
@@ -77,7 +77,7 @@ func getAllFormValues(ac *ActionCtx) (map[string]string, error) {
 func ActionLoadFormValues() *Action {
 	a := NewAction(func(ac *ActionCtx) error {
 		// TOOD: extrapolate into function
-		
+
 		// END TODO
 
 		values, err := getAllFormValues(ac)
@@ -86,7 +86,7 @@ func ActionLoadFormValues() *Action {
 		}
 
 		for key, val := range values {
-			ac.Store.SetString(key, val)	
+			ac.Store.SetString(key, val)
 		}
 
 		return nil

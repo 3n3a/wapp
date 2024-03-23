@@ -8,6 +8,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gofiber/template v1.8.3 // indirect
 	github.com/gofiber/utils v1.1.0 // indirect
+	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/philhofer/fwd v1.1.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/tinylib/msgp v1.1.8 // indirect
@@ -18,6 +19,7 @@ require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/gofiber/template/html/v2 v2.1.1
 	github.com/google/uuid v1.5.0 // indirect
+	github.com/gosimple/slug v1.14.0
 	github.com/klauspost/compress v1.17.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
