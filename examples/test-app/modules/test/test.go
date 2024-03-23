@@ -19,10 +19,10 @@ func New() *wapp.Module {
 			err := ac.Store.SetString("url2", "https://"+"google.com")
 			return err
 		}),
-		wapp.ActionRenderData(wapp.DataTypeHTML, wapp.Map{
+		wapp.ActionRenderDataAccept(wapp.Map{
 			"url": "sfdlfkjdlfj",
 			"url2": "skldjflk213123l",
-		}, "frontend/views/root"),
+		}, "root"),
 	)
 
 	// Add Submodules

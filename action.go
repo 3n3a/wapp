@@ -12,6 +12,7 @@ type ActionCtx struct {
 	*fiber.Ctx
 
 	Store *KV
+	WappConfig *Config
 }
 
 func (ac *ActionCtx) XMLWithHeader(data interface{}) error {

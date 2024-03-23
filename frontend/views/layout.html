@@ -11,7 +11,8 @@
   </head>
 
   <body hx-ext="morphdom-swap" class="site">
-    {{template "frontend/views/partials/header" .}} 
+    {{template "frontend/views/partials/header" .}}
+
     <div class="row-grow">
       <div
         class="menu-container"
@@ -32,7 +33,9 @@
 
       <div class="responsive-container">
         <div class="flex-grow text-black">
-          <h1 class="page-title">TODO: replace</h1>
+          <h1 class="page-title">
+            {{._internal.Name}}
+          </h1>
           {{embed}}
         </div>
       </div>

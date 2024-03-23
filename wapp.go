@@ -38,6 +38,10 @@ var staticfs embed.FS
 
 // Config is a struct holding the wapp configuration
 type Config struct {
+	// Name is the name of the application
+	//
+	// Default "Wapp"
+	Name string `json:"name"`
 	
 	// Port is the port the application will be listening at
 	//
@@ -84,13 +88,12 @@ type Wapp struct {
 
 // init executes initial functions for wapp
 func (w *Wapp) init() {
-	// TODO: what needs to go here: server?
 	fiberConfig := fiber.Config{}
 
 	// initialize with default, but allow override
 	// TODO: how to override module defaults
-	w.rootModule = DefaultRootModule()
-	w.errorModule = DefaultErrorModule()
+	w.rootModule = DefaultRootModule(w)
+	w.errorModule = DefaultErrorModule(w)
 
 	// create html engine
 	engine := html.NewFileSystem(
@@ -98,7 +101,6 @@ func (w *Wapp) init() {
 		".html",
 	)
 
-	// TODO: how could i emebed these?
 	fiberConfig.Views = engine
 	fiberConfig.ViewsLayout = "frontend/views/layout"
 
@@ -194,19 +196,21 @@ func (w *Wapp) Start() {
 }
 
 // Register adds a configured module to wapp
-func (w *Wapp) Register(module *Module) {
+func (w *Wapp) Register(module ...*Module) {
 	// Because at root level add as submodule to root
-	w.rootModule.Register(module)
+	w.rootModule.Register(module...)
 }
 
 // Default values when not provided
 const (
+	DefaultName string = "Wapp"
 	DefaultPort uint16 = 3000
 	DefaultAddress string = "127.0.0.1"
 	DefaultVersion string = "v0.0.1"
 	DefaultCoreModules string = "cache,recover,logger,compress"
 	DefaultCacheInclude string = "/*"
 	DefaultCacheDuration string = "1h"
+	DefaultViewsPath string = "frontend/views/"
 )
 
 // New creates a new wapp named instance
@@ -223,6 +227,9 @@ func New(config ...Config) *Wapp {
 	}
 
 	// Initial default / override values (if invalid config)
+	if wapp.config.Name == "" {
+		wapp.config.Name = DefaultName
+	}
 	if wapp.config.Port == 0 {
 		wapp.config.Port = DefaultPort
 	}

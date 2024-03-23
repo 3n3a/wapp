@@ -3,6 +3,7 @@ package wapp
 import (
 	"encoding/xml"
 	"errors"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -10,11 +11,12 @@ import (
 // MODULES
 
 // TODO: add default modules for root, error and layout
-func DefaultRootModule() *Module {
+func DefaultRootModule(w *Wapp) *Module {
 	m := NewModule(ModuleConfig{
 		Name:         "DefaultRootModule",
 		InternalName: "",
 		IsRoot:       true,
+		wappConfig:   &w.config,
 	})
 
 	// TODO: fix
@@ -26,9 +28,10 @@ func DefaultRootModule() *Module {
 	return m
 }
 
-func DefaultErrorModule() *ErrorModule {
+func DefaultErrorModule(w *Wapp) *ErrorModule {
 	m := NewErrorModule(ModuleConfig{
-		Name:         "DefaultErrorModule",
+		Name:       "DefaultErrorModule",
+		wappConfig: &w.config,
 	})
 
 	m.errorHandler = func(c *fiber.Ctx, err error) error {
@@ -125,40 +128,83 @@ func transformMapXML(m Map) (XMLKeyValues, error) {
 		kvs.KeyValues = append(
 			kvs.KeyValues,
 			XMLKeyValue{
-				Name:	 key,
-				Value:   val,
+				Name:  key,
+				Value: val,
 			},
 		)
 	}
 	return kvs, nil
 }
 
-// Renders a given Map with a given DataType
-func ActionRenderData(dataType DataType, data interface{}, templateName ...string) *Action {
+// Renders given Data by the accept header
+func ActionRenderDataAccept(data interface{}, templateName ...string) *Action {
 	a := NewAction(func(ac *ActionCtx) error {
-		switch dataType {
-		case DataTypeHTML:
-			if len(templateName) > 0 {
-				return ac.Render(templateName[0], data)
-			}
-			return errors.New("please input a templateName for HTML Data Type")
-		case DataTypeJSON:
-			return ac.JSON(data)
-		case DataTypeXML:
-			if dataMap, ok := isMap(data); ok {
-				// transform
-				m, err := transformMapXML(dataMap)
-				if err != nil {
-					return err
-				}
-				return ac.XMLWithHeader(m)
-			} else {
-				return ac.XML(data)
-			}
-		}
+		dataType := DataType(
+			ac.Accepts("text/html", "application/json", "text/xml"),
+		)
 
-		return nil
+		return dataRenderByType(dataType, templateName, data, ac)
 	})
 
 	return a
+}
+
+// Renders a given Map with a given DataType
+func ActionRenderData(dataType DataType, data interface{}, templateName ...string) *Action {
+	a := NewAction(func(ac *ActionCtx) error {
+		return dataRenderByType(dataType, templateName, data, ac)
+	})
+
+	return a
+}
+
+func dataRenderByType(dataType DataType, templateName []string, data interface{}, ac *ActionCtx) error {
+	switch dataType {
+	case DataTypeHTML:
+		return renderHTML(templateName, data, ac)
+	case DataTypeJSON:
+		return renderJSON(ac, data)
+	case DataTypeXML:
+		return renderXML(data, ac)
+	}
+
+	return nil
+}
+
+func renderXML(data interface{}, ac *ActionCtx) error {
+	if dataMap, ok := isMap(data); ok {
+
+		m, err := transformMapXML(dataMap)
+		if err != nil {
+			return err
+		}
+		return ac.XMLWithHeader(m)
+	} else {
+		return ac.XML(data)
+	}
+}
+
+func renderJSON(ac *ActionCtx, data interface{}) error {
+	if dataMap, ok := isMap(data); ok {
+		if dataMap["_internal"] != nil {
+			delete(dataMap, "_internal")
+		}
+		return ac.JSON(dataMap)
+	}
+	return ac.JSON(data)
+}
+
+func renderHTML(templateName []string, data interface{}, ac *ActionCtx) error {
+	if len(templateName) > 0 {
+		templateName_ := templateName[0]
+		if !strings.Contains(templateName_, DefaultViewsPath) {
+			templateName_ = DefaultViewsPath + templateName_
+		}
+		if dataMap, ok := isMap(data); ok {
+			dataMap["_internal"] = ac.WappConfig
+			return ac.Status(200).Render(templateName_, dataMap)
+		}
+		return ac.Status(200).Render(templateName_, data)
+	}
+	return errors.New("please input a templateName for HTML Data Type")
 }

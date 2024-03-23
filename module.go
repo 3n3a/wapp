@@ -3,19 +3,19 @@ package wapp
 import (
 	"errors"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gosimple/slug"
+	"github.com/smirzaei/parallel"
 )
 
 type DataType string
 
 const (
-	DataTypeHTML DataType = "HTML"
-	DataTypeJSON DataType = "JSON"
-	DataTypeXML  DataType = "XML"
+	DataTypeHTML DataType = "text/html"
+	DataTypeJSON DataType = "application/json"
+	DataTypeXML  DataType = "text/xml"
 )
 
 type HTTPMethod string
@@ -63,6 +63,8 @@ type ModuleConfig struct {
 	//
 	// Calculated
 	fullPath []string `json:"-"`
+
+	wappConfig *Config
 }
 
 // Module is the basic building block
@@ -113,9 +115,15 @@ func (m *Module) init() {
 }
 
 // Register adds configured Submodule
-func (m *Module) Register(module *Module) {
-	module.config.fullPath = append(m.config.fullPath, module.config.InternalName)
-	m.submodules = append(m.submodules, module)
+func (m *Module) Register(module ...*Module) {
+	parallel.ForEach(module, func(el *Module) {
+		// create full path
+		el.config.fullPath = append(m.config.fullPath, el.config.InternalName)
+		// add config
+		el.config.wappConfig = m.config.wappConfig
+		// add to list of submodules
+		m.submodules = append(m.submodules, el)
+	})
 }
 
 // Adds one or many actions to the specified array
@@ -126,10 +134,11 @@ func (m *Module) AddActions(action ...*Action) {
 func (m *Module) buildHandler() {
 	// bundle together the actions and create one function AKA the handler
 	m.handler = func(c *fiber.Ctx) error {
-		logger := log.New(os.Stdout, "MODULE", log.Lshortfile)
+		logger := c.Context().Logger()
 		actionCtx := &ActionCtx{
 			Ctx:   c,
 			Store: NewKV(),
+			WappConfig: m.config.wappConfig,
 		}
 
 		// main actions
