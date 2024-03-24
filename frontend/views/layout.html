@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TODO: replace</title>
+    <title>{{._internal.Name}}</title>
     <link rel="icon" href="/public/assets/icon.svg" style="color: #4d7c0f;">
     <link rel="mask-icon" href="/public/assets/icon.svg" color="#4d7c0f">
     {{ template "frontend/views/imports/styles" .}}
@@ -11,25 +11,6 @@
   </head>
 
   <body hx-ext="morphdom-swap" class="site">
-    {{template "frontend/views/partials/header" .}}
-
-    {{template "frontend/views/partials/debug" .}}
-
-    <div class="row-grow">
-      <div class="menu-container" hx-boost="true">
-        {{template "frontend/views/partials/menu-item" ._internal.RootMenuNodes}}
-      </div>
-
-      <div class="responsive-container">
-        <div class="flex-grow text-black">
-          <h1 class="page-title">
-            {{._internal.Name}}
-          </h1>
-          <div id="content">
-            {{embed}}
-          </div>
-        </div>
-      </div>
-    </div>
+    {{template "frontend/views/partials/body" .}}
   </body>
 </html>

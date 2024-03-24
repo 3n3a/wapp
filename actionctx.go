@@ -78,16 +78,17 @@ func (ac *ActionCtx) renderHTML(data []utils.Map, templateName []string) error {
 			templateName_ = DefaultViewsPath + templateName_
 		}
 
+		c := *ac.Locals("_internal").(*Config)
+		c.UpdateMenu(ac.Path())
+
 		dataMap := utils.Map{
 			"values":    data,
-			"_internal": *ac.Locals("_internal").(*Config),
+			"_internal": c,
 		}
 
 		if ac.Get("HX-Boosted", "false") == "true" {
-			ac.Set("HX-Retarget", "#content")
-
 			// only send back "embed part"
-			return ac.Status(200).Render(templateName_, dataMap, "")
+			return ac.Status(200).Render(templateName_, dataMap, DefaultViewsPath + "layout-hx")
 		} else {
 			return ac.Status(200).Render(templateName_, dataMap)
 		}

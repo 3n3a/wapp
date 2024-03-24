@@ -104,6 +104,29 @@ type Config struct {
 
 	// internal menu tree
 	RootMenuNodes []MenuNode `json:"root_menu_nodes"`
+
+	// internal active page
+	ActiveMenuNode MenuNode `json:"active_menu_node"`
+}
+
+func (c *Config) updateMenu(list []MenuNode, currentPage string) []MenuNode {
+	newList := make([]MenuNode, 0)
+	for _, m := range list {
+		m.IsActive = m.FullPath == currentPage
+
+		if m.IsActive {
+			c.ActiveMenuNode = m
+		}
+
+		m.SubNodes = c.updateMenu(m.SubNodes, currentPage)
+		newList = append(newList, m)
+	}
+
+	return newList
+}
+
+func (c *Config) UpdateMenu(currentPage string) {
+	c.RootMenuNodes = c.updateMenu(c.RootMenuNodes, currentPage)
 }
 
 // Wapp is the main object for interacting with this library

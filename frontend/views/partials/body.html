@@ -1,0 +1,18 @@
+{{template "frontend/views/partials/header" .}}
+
+{{template "frontend/views/partials/debug" .}}
+
+<div class="row-grow">
+    {{template "frontend/views/partials/menu" .}}
+
+    <div class="responsive-container">
+        <div class="flex-grow text-black">
+            <h1 class="page-title">
+                {{._internal.ActiveMenuNode.Name}}
+            </h1>
+            <div id="content">
+                {{embed}}
+            </div>
+        </div>
+    </div>
+</div>

@@ -46,14 +46,14 @@
     .no-subnodes > svg {
       display: none !important;
     }
+  }
 
-    span {
-      @apply flex flex-row items-center;
-    }
+  .menu-item > span {
+    @apply flex flex-row items-center;
   }
 
   .menu-item-active {
-    @apply menu-item bg-gray-700 hover:bg-gray-600;
+    @apply bg-gray-700 hover:bg-gray-600;
   }
 
   .menu-children {
