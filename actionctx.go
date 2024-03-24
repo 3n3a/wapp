@@ -14,8 +14,6 @@ import (
 // aswell as other convenience attributes etc.
 type ActionCtx struct {
 	*fiber.Ctx
-
-	WappConfig *Config
 }
 
 // Render XML with the xml.Header as a first line
@@ -73,11 +71,14 @@ func (ac *ActionCtx) renderJSON(data interface{}) error {
 func (ac *ActionCtx) renderHTML(data interface{}, templateName []string) error {
 	if len(templateName) > 0 {
 		templateName_ := templateName[0]
+
+		// prepend viewspath if not already contained
 		if !strings.Contains(templateName_, DefaultViewsPath) {
 			templateName_ = DefaultViewsPath + templateName_
 		}
+
 		if dataMap, ok := utils.IsMap(data); ok {
-			dataMap["_internal"] = ac.WappConfig
+			dataMap["_internal"] = ac.Locals("_internal")
 
 			// if templateName_ == "table" {
 			// 	// TODO: transform key value into table format for displaying ...

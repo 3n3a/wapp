@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	"test-app/modules/test/sub"
 
 	"github.com/3n3a/wapp"
@@ -24,6 +25,8 @@ func New() wapp.Module {
 			err := validate.URL(inputUrl)
 			urlValid := err == nil
 
+			fmt.Printf("route: %#v\n", ac.Locals("_internal"))
+
 			// output / render
 			return ac.RenderDataByAcceptHeader(
 				wapp.Map{
@@ -40,3 +43,5 @@ func New() wapp.Module {
 
 	return testModule
 }
+
+

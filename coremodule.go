@@ -13,6 +13,7 @@ const (
 	Recover CoreModule = "recover"
 	Logger CoreModule = "logger"
 	Compress CoreModule = "compress"
+	CORS CoreModule = "cors"
 )
 
 // CoreModulesFromString - converts comma-separated list of core-modules

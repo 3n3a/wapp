@@ -41,10 +41,6 @@ type ModuleConfig struct {
 	//
 	// Calculated
 	fullPath []string `json:"-"`
-
-	// reference / ptr to WappConfig so Actions have access
-	// TODO: refactoring needed?
-	wappConfig *Config
 }
 
 // Module is the basic building block
@@ -93,8 +89,6 @@ func (m *Module) Register(module ...Module) {
 	parallel.ForEach(module, func(el Module) {
 		// create full path
 		el.config.fullPath = append(m.config.fullPath, el.config.InternalName)
-		// add config
-		el.config.wappConfig = m.config.wappConfig
 		// add to list of submodules
 		m.submodules = append(m.submodules, el)
 	})
@@ -116,7 +110,6 @@ func (m *Module) buildHandler() {
 		// and attributes
 		actionCtx := &ActionCtx{
 			Ctx:   c,
-			WappConfig: m.config.wappConfig,
 		}
 
 		// main actions

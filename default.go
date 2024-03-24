@@ -16,8 +16,11 @@ const (
 	DefaultCoreModules       string = "cache,recover,logger,compress"
 	DefaultCacheInclude      string = "/*"
 	DefaultCacheDuration     string = "1h"
+	DefaultCorsAllowOrigins  string = "*"
+	DefaultCorsAllowHeaders  string = ""
 	DefaultViewsPath         string = "frontend/views/"
 	DefaultMultipleProcesses bool   = false
+
 )
 
 // Module Defaults
@@ -27,27 +30,24 @@ const (
 )
 
 // MODULES
-func DefaultRootModule(w *Wapp) Module {
+func DefaultRootModule() Module {
 	m := NewModule(ModuleConfig{
 		Name:         "DefaultRootModule",
 		InternalName: "",
 		IsRoot:       true,
-		wappConfig:   &w.config,
 	})
 
-	// TODO: fix
 	m.handler = func(c *fiber.Ctx) error {
 		return c.Status(200).
-			Render("root", nil, "layout")
+			Render(DefaultViewsPath + "root", nil)
 	}
 
 	return m
 }
 
-func DefaultErrorModule(w *Wapp) ErrorModule {
+func DefaultErrorModule() ErrorModule {
 	m := NewErrorModule(ModuleConfig{
 		Name:       "DefaultErrorModule",
-		wappConfig: &w.config,
 	})
 
 	m.errorHandler = func(c *fiber.Ctx, err error) error {
@@ -55,7 +55,7 @@ func DefaultErrorModule(w *Wapp) ErrorModule {
 
 		c.Context().Logger().Printf("Error: %#v", err)
 		return c.Status(500).
-			Render("frontend/views/error", utils.Map{
+			Render(DefaultViewsPath + "error", utils.Map{
 				"Message": err.Error(),
 			})
 	}

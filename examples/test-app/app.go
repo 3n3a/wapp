@@ -13,6 +13,7 @@ func main() {
 		CoreModules: []wapp.CoreModule{
 			wapp.Recover,
 			wapp.Logger,
+			wapp.CORS,
 		},
 	})
 	
