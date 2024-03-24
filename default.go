@@ -1,16 +1,34 @@
 package wapp
 
 import (
-	"encoding/xml"
 	"errors"
 	"strings"
 
+	"github.com/3n3a/wapp/internal/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
-// MODULES
+// CONFIG
 
-// TODO: add default modules for root, error and layout
+// Wapp Defaults
+const (
+	DefaultName string = "Wapp"
+	DefaultPort uint16 = 3000
+	DefaultAddress string = "127.0.0.1"
+	DefaultVersion string = "v0.0.1"
+	DefaultCoreModules string = "cache,recover,logger,compress"
+	DefaultCacheInclude string = "/*"
+	DefaultCacheDuration string = "1h"
+	DefaultViewsPath string = "frontend/views/"
+)
+
+// Module Defaults
+const (
+	DefaultModuleName   = "Module1"
+	DefaultModuleMethod = HTTPMethodGet
+)
+
+// MODULES
 func DefaultRootModule(w *Wapp) Module {
 	m := NewModule(ModuleConfig{
 		Name:         "DefaultRootModule",
@@ -39,7 +57,7 @@ func DefaultErrorModule(w *Wapp) ErrorModule {
 
 		c.Context().Logger().Printf("Error: %#v", err)
 		return c.Status(500).
-			Render("frontend/views/error", Map{
+			Render("frontend/views/error", utils.Map{
 				"Message": err.Error(),
 			})
 	}
@@ -50,91 +68,16 @@ func DefaultErrorModule(w *Wapp) ErrorModule {
 // HANDLERS
 
 // Default fiber Handler
+// TODO: should be default Action...
 func DefaultFiberHandler(c *fiber.Ctx) error {
 	return c.SendString("hello world: " + c.Path())
 }
 
 // ACTIONS
 
-func getAllFormValues(ac *ActionCtx) (map[string]string, error) {
-	var out map[string]string
 
-	out = ac.Queries()
 
-	formValues, err := ac.MultipartForm()
-	if err != nil {
-		return out, nil
-	}
 
-	for k, v := range formValues.Value {
-		if len(v) > 0 {
-			out[k] = v[0]
-		}
-	}
-
-	return out, nil
-}
-
-// Loads Query and Form Key, Value into ActionCtx Store
-//
-// Name Field: ac.Store.GetString("name")
-// func ActionLoadFormValues() *Action {
-// 	a := NewAction(func(ac *ActionCtx) error {
-// 		values, err := getAllFormValues(ac)
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		for key, val := range values {
-// 			ac.Store.SetString(key, val)
-// 		}
-
-// 		return nil
-// 	})
-
-// 	return a
-// }
-
-// func isString(val interface{}) (string, bool) {
-// 	if str, ok := val.(string); ok {
-// 		return str, true
-// 	}
-// 	return "", false
-// }
-
-func isMap(val interface{}) (Map, bool) {
-	if m, ok := val.(Map); ok {
-		return m, true
-	}
-
-	return nil, false
-}
-
-type XMLKeyValue struct {
-	XMLName xml.Name    `xml:"KeyValue"`
-	Name    string      `xml:"key,attr"`
-	Value   interface{} `xml:",chardata"`
-}
-
-// Create a struct to represent the KeyValues element
-type XMLKeyValues struct {
-	XMLName   xml.Name      `xml:"KeyValues"`
-	KeyValues []XMLKeyValue `xml:"KeyValue"`
-}
-
-func transformMapXML(m Map) (XMLKeyValues, error) {
-	var kvs XMLKeyValues
-	for key, val := range m {
-		kvs.KeyValues = append(
-			kvs.KeyValues,
-			XMLKeyValue{
-				Name:  key,
-				Value: val,
-			},
-		)
-	}
-	return kvs, nil
-}
 
 // Renders given Data by the accept header
 func ActionRenderDataAccept(data interface{}, templateName ...string) Action {
@@ -172,9 +115,9 @@ func dataRenderByType(dataType DataType, templateName []string, data interface{}
 }
 
 func renderXML(data interface{}, ac *ActionCtx) error {
-	if dataMap, ok := isMap(data); ok {
+	if dataMap, ok := utils.IsMap(data); ok {
 
-		m, err := transformMapXML(dataMap)
+		m, err := dataMap.ToXML()
 		if err != nil {
 			return err
 		}
@@ -185,7 +128,7 @@ func renderXML(data interface{}, ac *ActionCtx) error {
 }
 
 func renderJSON(ac *ActionCtx, data interface{}) error {
-	if dataMap, ok := isMap(data); ok {
+	if dataMap, ok := utils.IsMap(data); ok {
 		if dataMap["_internal"] != nil {
 			delete(dataMap, "_internal")
 		}
@@ -200,7 +143,7 @@ func renderHTML(templateName []string, data interface{}, ac *ActionCtx) error {
 		if !strings.Contains(templateName_, DefaultViewsPath) {
 			templateName_ = DefaultViewsPath + templateName_
 		}
-		if dataMap, ok := isMap(data); ok {
+		if dataMap, ok := utils.IsMap(data); ok {
 			dataMap["_internal"] = ac.WappConfig
 
 			// if templateName_ == "table" {

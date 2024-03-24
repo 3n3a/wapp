@@ -11,7 +11,6 @@ import (
 )
 
 type DataType string
-
 const (
 	DataTypeHTML DataType = "text/html"
 	DataTypeJSON DataType = "application/json"
@@ -19,7 +18,6 @@ const (
 )
 
 type HTTPMethod string
-
 const (
 	HTTPMethodAll     HTTPMethod = "ALL"
 	HTTPMethodGet     HTTPMethod = "GET"
@@ -99,11 +97,7 @@ type Module struct {
 	// TODO: each module has options for output (html-page, html-part, json, xml)
 }
 
-type ErrorModule struct {
-	*Module
 
-	errorHandler fiber.ErrorHandler
-}
 
 // do intial module stuff
 func (m *Module) init() {
@@ -172,11 +166,6 @@ func (m *Module) GetFullPath() string {
 	return "/" + strings.Join(m.config.fullPath, "/")
 }
 
-const (
-	DefaultModuleName   = "Module1"
-	DefaultModuleMethod = HTTPMethodGet
-)
-
 func NewModule(moduleConfigs ...ModuleConfig) Module {
 	// Create a new module
 	mod := Module{
@@ -209,15 +198,4 @@ func NewModule(moduleConfigs ...ModuleConfig) Module {
 	mod.init()
 
 	return mod
-}
-
-func NewErrorModule(moduleConfigs ...ModuleConfig) ErrorModule {
-	// Create a new module
-	defaultModule := NewModule(moduleConfigs...)
-
-	errorModule := ErrorModule{
-		Module: &defaultModule,
-	}
-
-	return errorModule
 }

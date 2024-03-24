@@ -201,18 +201,6 @@ func (w *Wapp) Register(module ...Module) {
 	w.rootModule.Register(module...)
 }
 
-// Default values when not provided
-const (
-	DefaultName string = "Wapp"
-	DefaultPort uint16 = 3000
-	DefaultAddress string = "127.0.0.1"
-	DefaultVersion string = "v0.0.1"
-	DefaultCoreModules string = "cache,recover,logger,compress"
-	DefaultCacheInclude string = "/*"
-	DefaultCacheDuration string = "1h"
-	DefaultViewsPath string = "frontend/views/"
-)
-
 // New creates a new wapp named instance
 func New(config ...Config) *Wapp {
 	// Create a new Wapp

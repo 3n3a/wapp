@@ -6,8 +6,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type Map = fiber.Map
-
 // Wrapper around fiber.Ctx
 // extended with wrapper functions, 
 // aswell as other convenience attributes etc.
@@ -32,4 +30,4 @@ func (ac *ActionCtx) XMLWithHeader(data interface{}) error {
 	return nil
 }
 
-// func (ac *ActionCtx) 
+func (ac *ActionCtx) 

@@ -5,7 +5,10 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	// "github.com/stretchr/testify/assert"
 )
+
+// TODO: write more unit tests
 
 func Test_Wapp_NewDefaultConfig(t *testing.T) {
 	w := New()
