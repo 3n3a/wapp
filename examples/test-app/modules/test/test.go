@@ -6,23 +6,17 @@ import (
 	"github.com/3n3a/wapp"
 )
 
-func New() *wapp.Module {
+func New() wapp.Module {
 	// Configure Module
 	testModule := wapp.NewModule(wapp.ModuleConfig{
 		Name: "Test Module",
 	})
 
 	// Actions
-	testModule.AddActions(
-		wapp.ActionLoadFormValues(),
+	testModule.AddAction(
 		wapp.NewAction(func(ac *wapp.ActionCtx) error {
-			err := ac.Store.SetString("url2", "https://"+"google.com")
-			return err
+			return ac.SendString("test test test")
 		}),
-		wapp.ActionRenderDataAccept(wapp.Map{
-			"url": "sfdlfkjdlfj",
-			"url2": "skldjflk213123l",
-		}, "table"),
 	)
 
 	// Add Submodules

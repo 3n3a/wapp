@@ -64,6 +64,8 @@ type ModuleConfig struct {
 	// Calculated
 	fullPath []string `json:"-"`
 
+	// reference / ptr to WappConfig so Actions have access
+	// TODO: refactoring needed?
 	wappConfig *Config
 }
 
@@ -74,18 +76,16 @@ type ModuleConfig struct {
 //
 // wapp.NewModule(...ModuleConfig) *Module
 type Module struct {
-	// Actions are the main function
-	// blocks of a Module
+	// Action is a thin wrapper around fiber.Handler
 	//
-	// Default: []
-	Actions []*Action
+	// Default: DefaultFiberHandler
+	Action Action
 
 	// Module config (aka Metadata about and around module)
 	config ModuleConfig
 	// Submodules list
-	submodules []*Module
-	// Handler is the content that will be returned
-	// TODO: remove this and replace with actions wrapper framework
+	submodules []Module
+	// Internal Function for handling a route
 	handler fiber.Handler
 
 	// TODO: add module contents
@@ -108,15 +108,15 @@ type ErrorModule struct {
 // do intial module stuff
 func (m *Module) init() {
 	// create initial pathname array
-	// TODO: make sure runs on each update --> value could theoreticall change
+	// TODO: should be executed each time InternalName updated
 	if m.config.InternalName != "" {
 		m.config.fullPath = append(m.config.fullPath, m.config.InternalName)
 	}
 }
 
 // Register adds configured Submodule
-func (m *Module) Register(module ...*Module) {
-	parallel.ForEach(module, func(el *Module) {
+func (m *Module) Register(module ...Module) {
+	parallel.ForEach(module, func(el Module) {
 		// create full path
 		el.config.fullPath = append(m.config.fullPath, el.config.InternalName)
 		// add config
@@ -126,28 +126,32 @@ func (m *Module) Register(module ...*Module) {
 	})
 }
 
-// Adds one or many actions to the specified array
-func (m *Module) AddActions(action ...*Action) {
-	m.Actions = append(m.Actions, action...)
+// Adds an Action to a Module
+// without one it is without use
+func (m *Module) AddAction(action Action) {
+	m.Action = action
 }
 
 func (m *Module) buildHandler() {
 	// bundle together the actions and create one function AKA the handler
 	m.handler = func(c *fiber.Ctx) error {
 		logger := c.Context().Logger()
+
+		// build action ctx
+		// contains extended functions
+		// and attributes
 		actionCtx := &ActionCtx{
 			Ctx:   c,
-			Store: NewKV(),
 			WappConfig: m.config.wappConfig,
 		}
 
 		// main actions
-		for _, a := range m.Actions {
-			err := a.f(actionCtx) // call func in action
-			if err != nil {
-				logger.Printf("Error: %#v\n", err)
-				return err
-			}
+		err := m.Action.f(actionCtx) // call func in action
+
+		// here to print error in action
+		if err != nil {
+			logger.Printf("error in action: %#v\n", err)
+			return err
 		}
 
 		return nil
@@ -173,9 +177,9 @@ const (
 	DefaultModuleMethod = HTTPMethodGet
 )
 
-func NewModule(moduleConfigs ...ModuleConfig) *Module {
+func NewModule(moduleConfigs ...ModuleConfig) Module {
 	// Create a new module
-	mod := &Module{
+	mod := Module{
 		// Create Module Config
 		config: ModuleConfig{},
 	}
@@ -207,12 +211,12 @@ func NewModule(moduleConfigs ...ModuleConfig) *Module {
 	return mod
 }
 
-func NewErrorModule(moduleConfigs ...ModuleConfig) *ErrorModule {
+func NewErrorModule(moduleConfigs ...ModuleConfig) ErrorModule {
 	// Create a new module
 	defaultModule := NewModule(moduleConfigs...)
 
-	errorModule := &ErrorModule{
-		Module: defaultModule,
+	errorModule := ErrorModule{
+		Module: &defaultModule,
 	}
 
 	return errorModule

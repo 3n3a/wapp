@@ -3,7 +3,6 @@ package wapp
 import (
 	"encoding/xml"
 	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -12,7 +11,7 @@ import (
 // MODULES
 
 // TODO: add default modules for root, error and layout
-func DefaultRootModule(w *Wapp) *Module {
+func DefaultRootModule(w *Wapp) Module {
 	m := NewModule(ModuleConfig{
 		Name:         "DefaultRootModule",
 		InternalName: "",
@@ -29,7 +28,7 @@ func DefaultRootModule(w *Wapp) *Module {
 	return m
 }
 
-func DefaultErrorModule(w *Wapp) *ErrorModule {
+func DefaultErrorModule(w *Wapp) ErrorModule {
 	m := NewErrorModule(ModuleConfig{
 		Name:       "DefaultErrorModule",
 		wappConfig: &w.config,
@@ -79,22 +78,22 @@ func getAllFormValues(ac *ActionCtx) (map[string]string, error) {
 // Loads Query and Form Key, Value into ActionCtx Store
 //
 // Name Field: ac.Store.GetString("name")
-func ActionLoadFormValues() *Action {
-	a := NewAction(func(ac *ActionCtx) error {
-		values, err := getAllFormValues(ac)
-		if err != nil {
-			return err
-		}
+// func ActionLoadFormValues() *Action {
+// 	a := NewAction(func(ac *ActionCtx) error {
+// 		values, err := getAllFormValues(ac)
+// 		if err != nil {
+// 			return err
+// 		}
 
-		for key, val := range values {
-			ac.Store.SetString(key, val)
-		}
+// 		for key, val := range values {
+// 			ac.Store.SetString(key, val)
+// 		}
 
-		return nil
-	})
+// 		return nil
+// 	})
 
-	return a
-}
+// 	return a
+// }
 
 // func isString(val interface{}) (string, bool) {
 // 	if str, ok := val.(string); ok {
@@ -138,7 +137,7 @@ func transformMapXML(m Map) (XMLKeyValues, error) {
 }
 
 // Renders given Data by the accept header
-func ActionRenderDataAccept(data interface{}, templateName ...string) *Action {
+func ActionRenderDataAccept(data interface{}, templateName ...string) Action {
 	a := NewAction(func(ac *ActionCtx) error {
 		dataType := DataType(
 			ac.Accepts("text/html", "application/json", "text/xml"),
@@ -151,7 +150,7 @@ func ActionRenderDataAccept(data interface{}, templateName ...string) *Action {
 }
 
 // Renders a given Map with a given DataType
-func ActionRenderData(dataType DataType, data interface{}, templateName ...string) *Action {
+func ActionRenderData(dataType DataType, data interface{}, templateName ...string) Action {
 	a := NewAction(func(ac *ActionCtx) error {
 		return dataRenderByType(dataType, templateName, data, ac)
 	})
@@ -204,10 +203,10 @@ func renderHTML(templateName []string, data interface{}, ac *ActionCtx) error {
 		if dataMap, ok := isMap(data); ok {
 			dataMap["_internal"] = ac.WappConfig
 
-			if templateName_ == "table" {
-				// TODO: transform key value into table format for displaying ...
-				dataMap["KeyValues"] = maps
-			}
+			// if templateName_ == "table" {
+			// 	// TODO: transform key value into table format for displaying ...
+			// 	dataMap["KeyValues"] = maps
+			// }
 
 			return ac.Status(200).Render(templateName_, dataMap)
 		}

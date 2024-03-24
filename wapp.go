@@ -81,9 +81,9 @@ type Wapp struct {
 	// Fiber Instance
 	ffiber *fiber.App
 	// Root Module
-	rootModule *Module // provides layout and container for submodules
+	rootModule Module // provides layout and container for submodules
 	// Error Module
-	errorModule *ErrorModule
+	errorModule ErrorModule
 }
 
 // init executes initial functions for wapp
@@ -156,8 +156,8 @@ func (w *Wapp) init() {
 }
 
 // recursively process all submodules and create tree
-func (w *Wapp) processModules(modules []*Module) {
-	parallel.ForEach(modules, func(currModule *Module) {
+func (w *Wapp) processModules(modules []Module) {
+	parallel.ForEach(modules, func(currModule Module) {
 		currModule.OnBeforeProcess()		
 
 		// ...processing
@@ -186,7 +186,7 @@ func (w *Wapp) processModules(modules []*Module) {
 // after registering all the modules
 func (w *Wapp) Start() {
 	// process root
-	w.processModules([]*Module{w.rootModule})
+	w.processModules([]Module{w.rootModule})
 
 	// Start server
 	hostPort := net.JoinHostPort(w.config.Address, fmt.Sprint(w.config.Port))
@@ -196,7 +196,7 @@ func (w *Wapp) Start() {
 }
 
 // Register adds a configured module to wapp
-func (w *Wapp) Register(module ...*Module) {
+func (w *Wapp) Register(module ...Module) {
 	// Because at root level add as submodule to root
 	w.rootModule.Register(module...)
 }
