@@ -1,0 +1,15 @@
+{{range .values}}
+    <table class="primary-table">
+        <tbody>
+            {{range $key, $value := .}}
+                {{if hasPrefix $key "_"}}
+                {{else}}
+                <tr class="primary-table-tr">
+                    <td class="primary-table-td flex font-bold">{{ $key }}</td>
+                    <td class="primary-table-td">{{ $value }}</td>
+                </tr>
+                {{end}}
+            {{end}}
+        </tbody>
+    </table>
+{{end}}

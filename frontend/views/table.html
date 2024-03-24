@@ -1,1 +1,18 @@
-{{template "frontend/views/partials/table" .KeyValues}}
+<table class="primary-table">
+    <thead>
+        <tr class="primary-table-tr">
+            {{range $key, $value := index .values 0}}
+                <th class="primary-table-th">{{$key}}</th>
+            {{end}}
+        </tr>
+    </thead>
+    <tbody>
+        {{range .values}}
+            <tr class="primary-table-tr">
+                {{range $key, $value := .}}
+                    <td class="primary-table-td">{{ $value }}</td>
+                {{end}}
+            </tr>
+        {{end}}
+    </tbody>
+</table>

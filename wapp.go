@@ -2,6 +2,7 @@ package wapp
 
 import (
 	"embed"
+	"encoding/xml"
 	"errors"
 	"fmt"
 	"log"
@@ -111,9 +112,6 @@ func (w *Wapp) init() {
 	fiberConfig := fiber.Config{
 		// Print all routes with methods on startup
 		EnablePrintRoutes: true,
-
-		// Needed for passing wappConfig to Views as Key: "_internal"
-		PassLocalsToViews: true,
 	}
 
 	// initialize with default, but allow override
@@ -127,6 +125,9 @@ func (w *Wapp) init() {
 		".html",
 	)
 
+	// Additional Functions for use in template
+	engine.Funcmap["hasPrefix"] = strings.HasPrefix
+
 	fiberConfig.Views = engine
 	fiberConfig.ViewsLayout = "frontend/views/layout"
 
@@ -136,6 +137,14 @@ func (w *Wapp) init() {
 	// TODO: allow custom fiber config
 	fiberConfig.ServerHeader = "Wapp"
 	fiberConfig.AppName = w.config.Name + " " + w.config.Version
+	
+	// Encoders
+	fiberConfig.XMLEncoder = func(v interface{}) ([]byte, error) {
+		prefix := ""
+		indent := "    "
+		return xml.MarshalIndent(v, prefix, indent)
+	}
+	
 	w.ffiber = fiber.New(fiberConfig)
 
 	// TODO: process all core modules

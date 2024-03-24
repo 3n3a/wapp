@@ -1,7 +1,8 @@
 package test
 
 import (
-	"fmt"
+	"test-app/modules/test/list"
+	"test-app/modules/test/listxml"
 	"test-app/modules/test/sub"
 
 	"github.com/3n3a/wapp"
@@ -25,13 +26,13 @@ func New() wapp.Module {
 			err := validate.URL(inputUrl)
 			urlValid := err == nil
 
-			fmt.Printf("route: %#v\n", ac.Locals("_internal"))
-
 			// output / render
 			return ac.RenderDataByAcceptHeader(
-				wapp.Map{
-					"url": inputUrl,
-					"valid": urlValid,
+				[]wapp.Map{
+					{
+						"url": inputUrl,
+						"valid": urlValid,
+					},
 				},
 				"table",
 			)
@@ -40,6 +41,8 @@ func New() wapp.Module {
 
 	// Add Submodules
 	testModule.Register(sub.New())
+	testModule.Register(list.New())
+	testModule.Register(listxml.New())
 
 	return testModule
 }

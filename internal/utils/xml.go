@@ -2,29 +2,38 @@ package utils
 
 import "encoding/xml"
 
-type XMLKeyValue struct {
-	XMLName xml.Name    `xml:"KeyValue"`
-	Name    string      `xml:"key,attr"`
+type XMLItemInner struct {
+	XMLName xml.Name
 	Value   interface{} `xml:",chardata"`
 }
 
-// Create a struct to represent the KeyValues element
-type XMLKeyValues struct {
-	XMLName   xml.Name      `xml:"KeyValues"`
-	KeyValues []XMLKeyValue `xml:"KeyValue"`
+type XMLItem struct {
+	XMLName xml.Name `xml:"Item"`
+	Inner   []XMLItemInner
 }
 
-// Transforms a utils.Map to XML Key Values
-func (m *Map) ToXML() (XMLKeyValues, error) {
-	var kvs XMLKeyValues
+// Create a struct to represent the KeyValues element
+type XMLList struct {
+	XMLName xml.Name  `xml:"List"`
+	Items   []XMLItem `xml:"Item"`
+}
+
+// Transforms a utils.Map to XML
+func (m *Map) ToXML() (XMLItem, error) {
+	inners := []XMLItemInner{}
+
 	for key, val := range *m {
-		kvs.KeyValues = append(
-			kvs.KeyValues,
-			XMLKeyValue{
-				Name:  key,
-				Value: val,
+		inners = append(
+			inners,
+			XMLItemInner{
+				XMLName: xml.Name{Local: key},
+				Value:   val,
 			},
 		)
 	}
-	return kvs, nil
+
+	var item = XMLItem{
+		Inner: inners,
+	}
+	return item, nil
 }

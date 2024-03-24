@@ -58,6 +58,10 @@
       @apply border-b-2;
     }
 
+    .primary-table-th {
+      @apply text-left px-4 py-2;
+    }
+
     .primary-table-td {
       @apply px-4 py-2;
     }

@@ -32,7 +32,7 @@ func (ac *ActionCtx) XMLWithHeader(data interface{}) error {
 }
 
 // internal function that renders given data by a type
-func (ac *ActionCtx) renderDataByDataType(dataType DataType, data interface{}, templateName []string) error {
+func (ac *ActionCtx) renderDataByDataType(dataType DataType, data []utils.Map, templateName []string) error {
 	switch dataType {
 	case DataTypeHTML:
 		return ac.renderHTML(data, templateName)
@@ -45,20 +45,21 @@ func (ac *ActionCtx) renderDataByDataType(dataType DataType, data interface{}, t
 	return nil
 }
 
-func (ac *ActionCtx) renderXML(data interface{}) error {
-	if dataMap, ok := utils.IsMap(data); ok {
-
-		m, err := dataMap.ToXML()
+func (ac *ActionCtx) renderXML(data []utils.Map) error {
+	list := utils.XMLList{}
+	for _, curr := range data {
+		m, err := curr.ToXML()
 		if err != nil {
 			return err
 		}
-		return ac.XMLWithHeader(m)
-	} else {
-		return ac.XML(data)
+
+		list.Items = append(list.Items, m)
+
 	}
+	return ac.XMLWithHeader(list)
 }
 
-func (ac *ActionCtx) renderJSON(data interface{}) error {
+func (ac *ActionCtx) renderJSON(data []utils.Map) error {
 	if dataMap, ok := utils.IsMap(data); ok {
 		if dataMap["_internal"] != nil {
 			delete(dataMap, "_internal")
@@ -68,7 +69,7 @@ func (ac *ActionCtx) renderJSON(data interface{}) error {
 	return ac.JSON(data)
 }
 
-func (ac *ActionCtx) renderHTML(data interface{}, templateName []string) error {
+func (ac *ActionCtx) renderHTML(data []utils.Map, templateName []string) error {
 	if len(templateName) > 0 {
 		templateName_ := templateName[0]
 
@@ -77,27 +78,24 @@ func (ac *ActionCtx) renderHTML(data interface{}, templateName []string) error {
 			templateName_ = DefaultViewsPath + templateName_
 		}
 
-		if dataMap, ok := utils.IsMap(data); ok {
-			dataMap["_internal"] = ac.Locals("_internal")
-
-			// if templateName_ == "table" {
-			// 	// TODO: transform key value into table format for displaying ...
-			// 	dataMap["KeyValues"] = maps
-			// }
-
-			return ac.Status(200).Render(templateName_, dataMap)
+		dataMap := utils.Map{
+			"values":    data,
+			"_internal": ac.Locals("_internal"),
 		}
-		return ac.Status(200).Render(templateName_, data)
+
+		return ac.Status(200).Render(templateName_, dataMap)
+
 	}
 	return errors.New("please input a templateName for HTML Data Type")
 }
 
 // Chooses output method based on Accept header values
 //
-// Wrapper around ActionCtx.renderDataByDataType()
+// Set "data.values" field to []utils.Map for "table" template
 //
-// See under enum.go for possible DataType's
-func (ac *ActionCtx) RenderDataByAcceptHeader(data interface{}, templateName ...string) error {
+// Wrapper around ActionCtx.renderDataByDataType().
+// See under enum.go for possible DataType's.
+func (ac *ActionCtx) RenderDataByAcceptHeader(data []utils.Map, templateName ...string) error {
 	// This is the part that devices which DataType gets used
 	// specifically the Accepts() function
 	dataType := DataType(
@@ -111,6 +109,9 @@ func (ac *ActionCtx) RenderDataByAcceptHeader(data interface{}, templateName ...
 	return ac.renderDataByDataType(dataType, data, templateName)
 }
 
-func (ac *ActionCtx) RenderData(dataType DataType, data interface{}, templateName ...string) error {
+// RenderData based on DataType
+//
+// Set "data.values" field to []utils.Map for "table" template
+func (ac *ActionCtx) RenderData(dataType DataType, data []utils.Map, templateName ...string) error {
 	return ac.renderDataByDataType(dataType, data, templateName)
 }
