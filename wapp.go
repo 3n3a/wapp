@@ -70,8 +70,16 @@ type Config struct {
 
 	// Cache Duration for above paths
 	//
-	// Default: 3600s - 1 hour
+	// Default: "1h" (3600s - 1 hour)
 	CacheDuration string `json:"cache_duration"`
+
+	// Multiple Processes
+	//
+	// Sets the fiber Prefork Option.
+	// Make sure you start from a shell (Docker `CMD ./app` or `CMD ["sh", "-c", "/app"]`)
+	//
+	// Default: false
+	MultipleProcesses bool `json:"multiple_processes"`
 }
 
 // Wapp is the main object for interacting with this library
@@ -240,6 +248,9 @@ func New(config ...Config) *Wapp {
 	}
 	if wapp.config.CacheDuration == "" {
 		wapp.config.CacheDuration = DefaultCacheDuration
+	}
+	if wapp.config.MultipleProcesses == false {
+		wapp.config.MultipleProcesses = DefaultMultipleProcesses
 	}
 
 	// Init wapp

@@ -4,6 +4,7 @@ import (
 	"test-app/modules/test/sub"
 
 	"github.com/3n3a/wapp"
+	"github.com/muonsoft/validation/validate"
 )
 
 func New() wapp.Module {
@@ -15,7 +16,22 @@ func New() wapp.Module {
 	// Action
 	testModule.AddAction(
 		wapp.NewAction(func(ac *wapp.ActionCtx) error {
-			return ac.SendString("test test test")
+			// input
+			inputUrl := ac.FormValue("url", "")
+
+			// transform / data
+			//// validate url
+			err := validate.URL(inputUrl)
+			urlValid := err == nil
+
+			// output / render
+			return ac.RenderDataByAcceptHeader(
+				wapp.Map{
+					"url": inputUrl,
+					"valid": urlValid,
+				},
+				"table",
+			)
 		}),
 	)
 

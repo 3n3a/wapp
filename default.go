@@ -9,14 +9,15 @@ import (
 
 // Wapp Defaults
 const (
-	DefaultName          string = "Wapp"
-	DefaultPort          uint16 = 3000
-	DefaultAddress       string = "127.0.0.1"
-	DefaultVersion       string = "v0.0.1"
-	DefaultCoreModules   string = "cache,recover,logger,compress"
-	DefaultCacheInclude  string = "/*"
-	DefaultCacheDuration string = "1h"
-	DefaultViewsPath     string = "frontend/views/"
+	DefaultName              string = "Wapp"
+	DefaultPort              uint16 = 3000
+	DefaultAddress           string = "127.0.0.1"
+	DefaultVersion           string = "v0.0.1"
+	DefaultCoreModules       string = "cache,recover,logger,compress"
+	DefaultCacheInclude      string = "/*"
+	DefaultCacheDuration     string = "1h"
+	DefaultViewsPath         string = "frontend/views/"
+	DefaultMultipleProcesses bool   = false
 )
 
 // Module Defaults

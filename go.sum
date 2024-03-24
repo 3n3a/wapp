@@ -1,3 +1,5 @@
+github.com/ada-url/goada v0.0.0-20231107114738-49a08e97123d h1:IU34YO/iUfVBU/pkU88Pvu9T+XQ4lraCPoptdO+pBPQ=
+github.com/ada-url/goada v0.0.0-20231107114738-49a08e97123d/go.mod h1:+D/veNwI2mA1hDYLVrYSobYcLFWm6e3DJ/H/d/dxlu8=
 github.com/andybalholm/brotli v1.0.5 h1:8uQZIdzKmjc/iuPu7O2ioW48L81FgatrcpfFmiq/cCs=
 github.com/andybalholm/brotli v1.0.5/go.mod h1:fO7iG3H7G2nSZ7m0zPUDn85XEX2GTukHGRSepvi9Eig=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
