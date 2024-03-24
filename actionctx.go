@@ -83,7 +83,14 @@ func (ac *ActionCtx) renderHTML(data []utils.Map, templateName []string) error {
 			"_internal": *ac.Locals("_internal").(*Config),
 		}
 
-		return ac.Status(200).Render(templateName_, dataMap)
+		if ac.Get("HX-Boosted", "false") == "true" {
+			ac.Set("HX-Retarget", "#content")
+
+			// only send back "embed part"
+			return ac.Status(200).Render(templateName_, dataMap, "")
+		} else {
+			return ac.Status(200).Render(templateName_, dataMap)
+		}
 
 	}
 	return errors.New("please input a templateName for HTML Data Type")
