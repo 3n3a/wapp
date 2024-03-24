@@ -88,7 +88,10 @@ type Wapp struct {
 
 // init executes initial functions for wapp
 func (w *Wapp) init() {
-	fiberConfig := fiber.Config{}
+	fiberConfig := fiber.Config{
+		// Print all routes with methods on startup
+		EnablePrintRoutes: true,
+	}
 
 	// initialize with default, but allow override
 	// TODO: how to override module defaults
@@ -112,8 +115,8 @@ func (w *Wapp) init() {
 	w.ffiber = fiber.New(fiberConfig)
 	
 	// TODO: process all core modules
+	cacheDuration, err := time.ParseDuration(w.config.CacheDuration)
 	if slices.Contains(w.config.CoreModules, Cache) {
-		cacheDuration, err := time.ParseDuration(w.config.CacheDuration)
 		if err != nil {
 			log.Fatal(errors.New("please provide valid cache duration"))
 		}
@@ -145,10 +148,11 @@ func (w *Wapp) init() {
 	}
 
 	// embedded fs
-	w.ffiber.Use(filesystem.New(filesystem.Config{
+	w.ffiber.Use("/public", filesystem.New(filesystem.Config{
 		Root: http.FS(staticfs),
-		PathPrefix: "frontend",
+		PathPrefix: "frontend/public",
 		Browse: false,
+		MaxAge: int(cacheDuration.Seconds()), // Same as cache duration for Cache plugin
 	}))
 
 	// Static
