@@ -4,8 +4,8 @@ import "strings"
 
 // Enum values for available core modules
 //
-// These can be added to config to active for example
-// the caching or so
+// These can be added to config to activate for example
+// the caching and recovering
 type CoreModule string
 
 const (

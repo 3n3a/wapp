@@ -12,7 +12,7 @@ func New() wapp.Module {
 		Name: "Test Module",
 	})
 
-	// Actions
+	// Action
 	testModule.AddAction(
 		wapp.NewAction(func(ac *wapp.ActionCtx) error {
 			return ac.SendString("test test test")
