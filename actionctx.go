@@ -80,7 +80,7 @@ func (ac *ActionCtx) renderHTML(data []utils.Map, templateName []string) error {
 
 		dataMap := utils.Map{
 			"values":    data,
-			"_internal": ac.Locals("_internal"),
+			"_internal": *ac.Locals("_internal").(*Config),
 		}
 
 		return ac.Status(200).Render(templateName_, dataMap)

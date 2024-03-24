@@ -39,6 +39,14 @@ var staticfs embed.FS
 // and XX for easy db
 // and also offers custom functions which are generally useful
 
+type MenuNode struct {
+	Name string `json:"name"`
+	FullPath string `json:"full_path"`
+	IsActive bool `json:"is_active"`
+
+	SubNodes []MenuNode `json:"sub_nodes"`
+}
+
 // Config is a struct holding the wapp configuration
 type Config struct {
 	// Name is the name of the application
@@ -93,6 +101,9 @@ type Config struct {
 	//
 	// Default: false
 	MultipleProcesses bool `json:"multiple_processes"`
+
+	// internal menu tree
+	RootMenuNodes []MenuNode `json:"root_menu_nodes"`
 }
 
 // Wapp is the main object for interacting with this library
@@ -186,8 +197,8 @@ func (w *Wapp) init() {
 		}))
 	}
 
-	w.ffiber.Use(configpassing.New(configpassing.Config{
-		WappConfig: w.config,
+	w.ffiber.Use(configpassing.New[Config](configpassing.Config[Config]{
+		WappConfig: &w.config,
 	}))
 
 	// embedded fs
@@ -203,7 +214,9 @@ func (w *Wapp) init() {
 }
 
 // recursively process all submodules and create tree
-func (w *Wapp) processModules(modules []Module) {
+func (w *Wapp) processModules(modules []Module) []MenuNode {
+	menuNodes := []MenuNode{}
+
 	parallel.ForEach(modules, func(currModule Module) {
 		currModule.OnBeforeProcess()
 
@@ -222,18 +235,27 @@ func (w *Wapp) processModules(modules []Module) {
 			)
 		}
 
-		// TODO: additional processing for module like menu building etc.
+		currNode := MenuNode{
+			Name: currModule.config.Name,
+			FullPath: currModule.GetFullPath(),
+		}
 
 		// process submodules
-		w.processModules(currModule.submodules)
+		subNodes := w.processModules(currModule.submodules)
+		
+		currNode.SubNodes = subNodes
+		menuNodes = append(menuNodes, currNode)
 	})
+
+	return menuNodes
 }
 
 // Start needs to be executed
 // after registering all the modules
 func (w *Wapp) Start() {
 	// process root
-	w.processModules([]Module{w.rootModule})
+	rootNodes := w.processModules([]Module{w.rootModule})
+	w.config.RootMenuNodes = rootNodes[0].SubNodes
 
 	// Start server
 	hostPort := net.JoinHostPort(w.config.Address, fmt.Sprint(w.config.Port))

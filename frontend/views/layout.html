@@ -16,21 +16,8 @@
     {{template "frontend/views/partials/debug" .}}
 
     <div class="row-grow">
-      <div
-        class="menu-container"
-        hx-boost="true"
-      >
-        <!-- {{range .page.MenuItems}} 
-            {{if .Active}}
-                <div class="menu-item-active">
-                <a class="p-4 w-full" href="{{ .Link }}"> {{ .Name }} </a>
-                </div>
-            {{else}}
-                <div class="menu-item">
-                <a class="p-4 w-full" href="{{ .Link }}"> {{ .Name }} </a>
-                </div>
-            {{end}}
-        {{end}} -->
+      <div class="menu-container" hx-boost="true">
+        {{template "frontend/views/partials/menu-item" ._internal.RootMenuNodes}}
       </div>
 
       <div class="responsive-container">

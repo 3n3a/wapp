@@ -21,6 +21,19 @@
 
   .menu-container {
     @apply flex flex-row md:flex-col md:w-[20%] bg-gray-800 overflow-auto;
+
+    /* Menu Tree List */
+    details summary span > .close {
+      display: none;
+    }
+  
+    details[open] summary span > .open {
+      display: none;
+    }
+  
+    details[open] summary span > .close {
+      display: block;
+    }
   }
 
   .responsive-container {
@@ -29,10 +42,22 @@
 
   .menu-item {
     @apply flex md:flex-row hover:bg-gray-600;
+
+    .no-subnodes > svg {
+      display: none !important;
+    }
+
+    span {
+      @apply flex flex-row items-center;
+    }
   }
 
   .menu-item-active {
     @apply menu-item bg-gray-700 hover:bg-gray-600;
+  }
+
+  .menu-children {
+    @apply ml-4 border-l-2 border-neutral-600;
   }
 
   .page-title {

@@ -5,18 +5,17 @@ import (
 )
 
 // New creates a new middleware handler
-func New(config ...Config) fiber.Handler {
-	currentConfig := config[0]
-
-	// do not start if no wappconfig
-	if currentConfig.WappConfig == nil {
-		panic("cannot be used without providing wappConfig")
-	}
-
+func New[T any](config Config[T]) fiber.Handler {
 	// Return new handler
 	return func(c *fiber.Ctx) error {
-		// Pass wapp config as Local
-		c.Locals("_internal", currentConfig.WappConfig)
+
+		// Pass wapp config as Local, if html
+		if c.Accepts("text/html") != "" {
+			c.Locals("_internal", config.WappConfig)
+		}
+
+		// Debug
+		// fmt.Printf("%#v\n", c.Locals("_internal"))
 
 		// Return from handler
 		return c.Next()
