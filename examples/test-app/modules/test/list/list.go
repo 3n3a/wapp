@@ -5,6 +5,9 @@ import (
 )
 
 func New() wapp.Module {
+	// TODO: how can i add input fields??
+	// as a user i want to add list of fields
+	// which will result in form submit with get
 	listModule := wapp.NewModule(wapp.ModuleConfig{
 		Name: "List",
 	})
