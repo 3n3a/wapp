@@ -4,11 +4,23 @@
 
 @layer components {
   .header {
-    @apply bg-lime-700 px-8 py-2 flex flex-row items-center gap-4 text-xl;
-
+    @apply bg-lime-700 px-8 py-2 flex flex-row justify-between text-xl;
+  }
+  
+  .header-sub {
+    @apply flex flex-row items-center gap-4;
+    
     object {
       @apply h-10 object-scale-down;
     }
+  }
+
+  .mobile-menu {
+    @apply flex md:hidden;
+  }
+
+  .burger-button {
+    @apply hover:bg-slate-700 hover:rounded-md p-1;
   }
 
   .site {
@@ -20,7 +32,7 @@
   }
 
   .menu-container {
-    @apply flex flex-row md:flex-col md:w-[20%] bg-gray-800 overflow-auto;
+    @apply flex flex-row bg-gray-800 overflow-auto md:!flex md:max-w-64 md:z-auto md:relative z-50 fixed w-dvw h-dvh;
 
     /* Menu Tree List */
     details summary span > .close {
@@ -36,12 +48,16 @@
     }
   }
 
+  .menu-container > details {
+    @apply w-full;
+  }
+
   .responsive-container {
     @apply flex flex-row md:flex-col flex-grow p-6 md:p-8;
   }
 
   .menu-item {
-    @apply flex md:flex-row hover:bg-gray-600;
+    @apply flex hover:bg-gray-600;
 
     .no-subnodes > svg {
       display: none !important;

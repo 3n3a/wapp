@@ -25,6 +25,19 @@ window.showEl = (elSelector) => {
   htmx.find(elSelector).style.display = 'block'
 }
 
+// Hide Element by Selector
+window.hideEl = (elSelector) => {
+  htmx.find(elSelector).style.display = 'none'
+}
+
+window.toggleElVis = (elSelector) => {
+  if (htmx.find(elSelector).style.display == 'block') {
+    window.hideEl(elSelector)
+  } else {
+    window.showEl(elSelector)
+  }
+}
+
 // Remove Elements by Selector
 window.cleanEls = (elSelector) => {
   htmx.findAll(elSelector).forEach(e => e.remove())

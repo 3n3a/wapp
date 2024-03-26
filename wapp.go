@@ -42,9 +42,15 @@ var staticfs embed.FS
 type MenuNode struct {
 	Name string `json:"name"`
 	FullPath string `json:"full_path"`
-	IsActive bool `json:"is_active"`
 
 	SubNodes []MenuNode `json:"sub_nodes"`
+	
+	CurrentPath string `json:"current_path"`
+}
+
+func MenuSetCurrentPath(m MenuNode, current string) MenuNode {
+	m.CurrentPath = current
+	return m
 }
 
 // Config is a struct holding the wapp configuration
@@ -103,30 +109,17 @@ type Config struct {
 	MultipleProcesses bool `json:"multiple_processes"`
 
 	// internal menu tree
-	RootMenuNodes []MenuNode `json:"root_menu_nodes"`
+	Menu MenuNode `json:"menu"`
 
-	// internal active page
-	ActiveMenuNode MenuNode `json:"active_menu_node"`
+	// Current Page Title
+	CurrentTitle string `json:"-"`
+
+	// path - Name Map
+	pathNameMap map[string]string `json:"-"`
 }
 
-func (c *Config) updateMenu(list []MenuNode, currentPage string) []MenuNode {
-	newList := make([]MenuNode, 0)
-	for _, m := range list {
-		m.IsActive = m.FullPath == currentPage
-
-		if m.IsActive {
-			c.ActiveMenuNode = m
-		}
-
-		m.SubNodes = c.updateMenu(m.SubNodes, currentPage)
-		newList = append(newList, m)
-	}
-
-	return newList
-}
-
-func (c *Config) UpdateMenu(currentPage string) {
-	c.RootMenuNodes = c.updateMenu(c.RootMenuNodes, currentPage)
+func (c *Config) GetCurrentPageTitle(curr string) string {
+	return c.pathNameMap[curr]
 }
 
 // Wapp is the main object for interacting with this library
@@ -161,6 +154,7 @@ func (w *Wapp) init() {
 
 	// Additional Functions for use in template
 	engine.Funcmap["hasPrefix"] = strings.HasPrefix
+	engine.Funcmap["MenuSetCurrentPath"] = MenuSetCurrentPath
 
 	fiberConfig.Views = engine
 	fiberConfig.ViewsLayout = "frontend/views/layout"
@@ -237,6 +231,7 @@ func (w *Wapp) init() {
 }
 
 // recursively process all submodules and create tree
+// executed at startup :)
 func (w *Wapp) processModules(modules []Module) []MenuNode {
 	menuNodes := []MenuNode{}
 
@@ -258,15 +253,19 @@ func (w *Wapp) processModules(modules []Module) []MenuNode {
 			)
 		}
 
+		// menu
 		currNode := MenuNode{
 			Name: currModule.config.Name,
 			FullPath: currModule.GetFullPath(),
 		}
 
+		// add to map for easy retrieval
+		w.config.pathNameMap[currNode.FullPath] = currNode.Name
+
 		// process submodules
 		subNodes := w.processModules(currModule.submodules)
-		
 		currNode.SubNodes = subNodes
+		
 		menuNodes = append(menuNodes, currNode)
 	})
 
@@ -277,8 +276,9 @@ func (w *Wapp) processModules(modules []Module) []MenuNode {
 // after registering all the modules
 func (w *Wapp) Start() {
 	// process root
+	w.config.pathNameMap = make(map[string]string)
 	rootNodes := w.processModules([]Module{w.rootModule})
-	w.config.RootMenuNodes = rootNodes[0].SubNodes
+	w.config.Menu = rootNodes[0]
 
 	// Start server
 	hostPort := net.JoinHostPort(w.config.Address, fmt.Sprint(w.config.Port))
