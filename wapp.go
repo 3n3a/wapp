@@ -111,11 +111,8 @@ type Config struct {
 	// internal menu tree
 	Menu MenuNode `json:"menu"`
 
-	// Current Page Title
-	CurrentTitle string `json:"-"`
-
 	// path - Name Map
-	pathNameMap map[string]string `json:"-"`
+	pathNameMap map[string]Module `json:"-"`
 
 	// Debug Mode
 	//
@@ -126,7 +123,7 @@ type Config struct {
 	DebugMode bool `json:"debug_mode"`
 }
 
-func (c *Config) GetCurrentPageTitle(curr string) string {
+func (c *Config) GetCurrentModule(curr string) Module {
 	return c.pathNameMap[curr]
 }
 
@@ -268,7 +265,7 @@ func (w *Wapp) processModules(modules []Module) []MenuNode {
 		}
 
 		// add to map for easy retrieval
-		w.config.pathNameMap[currNode.FullPath] = currNode.Name
+		w.config.pathNameMap[currNode.FullPath] = currModule
 
 		// process submodules
 		subNodes := w.processModules(currModule.submodules)
@@ -284,7 +281,7 @@ func (w *Wapp) processModules(modules []Module) []MenuNode {
 // after registering all the modules
 func (w *Wapp) Start() {
 	// process root
-	w.config.pathNameMap = make(map[string]string)
+	w.config.pathNameMap = make(map[string]Module)
 	rootNodes := w.processModules([]Module{w.rootModule})
 	w.config.Menu = rootNodes[0]
 

@@ -80,11 +80,12 @@ func (ac *ActionCtx) renderHTML(data []utils.Map, templateName []string) error {
 
 		c := *ac.Locals("_internal").(*Config)
 		c.Menu.CurrentPath = ac.Path()
-		c.CurrentTitle = c.GetCurrentPageTitle(c.Menu.CurrentPath)
+		currModule := c.GetCurrentModule(c.Menu.CurrentPath)
 
 		dataMap := utils.Map{
 			"values":    data,
 			"_internal": c,
+			"_module": currModule.GetConfig(),
 		}
 
 		if ac.Get("HX-Boosted", "false") == "true" {

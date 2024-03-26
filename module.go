@@ -41,6 +41,40 @@ type ModuleConfig struct {
 	//
 	// Calculated
 	fullPath []string `json:"-"`
+
+	// TODO: how can i add input fields??
+	// as a user i want to add list of fields
+	// which will result in form submit with get
+
+	UIInputTitle string `json:"ui_input_title"`
+
+	UIOutputTitle string `json:"ui_output_title"`
+
+	UIFields []UIField `json:"ui_fields"`
+}
+
+type UIFieldType string
+const (
+	UITypeDropdown UIFieldType = "dropdown"
+	UITypeText UIFieldType = "text"
+	UITypeEmail UIFieldType = "email"
+	UITypePhone UIFieldType = "phone"
+	UITypeNumber UIFieldType = "number"
+
+	UITypeSubmit UIFieldType = "submit"
+)
+
+type UIChild struct {
+	Value string `json:"value"`
+	DisplayValue string `json:"display_value"`
+}
+
+type UIField struct {
+	Name string `json:"name"`
+	Type UIFieldType `json:"type"`
+	Default string `json:"default"`
+	Required bool `json:"required"`
+	Children []UIChild `json:"children"`
 }
 
 // Module is the basic building block
@@ -62,6 +96,8 @@ type Module struct {
 	// Internal Function for handling a route
 	handler fiber.Handler
 
+
+
 	// TODO: add module contents
 	// TODO: each module has option for a menu (would be rendered on main page)
 	// TODO: each module has a route
@@ -82,6 +118,11 @@ func (m *Module) init() {
 	if m.config.InternalName != "" {
 		m.config.fullPath = append(m.config.fullPath, m.config.InternalName)
 	}
+}
+
+// Get a config value
+func (m *Module) GetConfig() ModuleConfig {
+	return m.config
 }
 
 // Register adds configured Submodule
@@ -165,6 +206,15 @@ func NewModule(moduleConfigs ...ModuleConfig) Module {
 	if strings.ContainsAny(mod.config.InternalName, "/") {
 		// TODO: should i error out like this?
 		log.Fatal(errors.New("\"/\" (slashes) are not allowed in path name"))
+	}
+	if mod.config.UIInputTitle == "" {
+		mod.config.UIInputTitle = DefaultModuleUIInputTitle
+	}
+	if mod.config.UIOutputTitle == "" {
+		mod.config.UIOutputTitle = DefaultModuleUIOutputTitle
+	}
+	if mod.config.UIFields == nil || len(mod.config.UIFields) == 0 {
+		mod.config.UIFields = make([]UIField, 0)
 	}
 
 	// run init

@@ -27,6 +27,8 @@ const (
 const (
 	DefaultModuleName   = "Module1"
 	DefaultModuleMethod = HTTPMethodGet
+	DefaultModuleUIInputTitle = "Input"
+	DefaultModuleUIOutputTitle = "Output"
 )
 
 // MODULES

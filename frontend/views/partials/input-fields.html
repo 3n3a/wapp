@@ -1,0 +1,42 @@
+
+{{range .}}
+
+<div class="input-container">
+    <!-- Input Types MDN: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types -->
+    {{if eq .Type "dropdown"}}
+    <label for="{{.Name}}">{{.Name}}</label>
+    <select class="form-input field" name="{{.Name}}" id="{{.Name}}"required="{{.Required}}" >
+    {{ $default := .Default }}
+    {{range .Children}}
+        {{if eq $default .Value}}
+        <option  value="{{.Value}}" selected>{{.DisplayValue}}</option>
+        {{else}}
+        <option  value="{{.Value}}">{{.DisplayValue}}</option>
+        {{end}}
+    {{end}}
+    </select>
+
+
+    {{else if eq .Type "email"}}
+    <label for="{{.Name}}">{{.Name}}</label>
+    <input class="field" type="email" name="{{.Name}}" id="{{.Name}}" required="{{.Required}}" placeholder="{{.Default}}">
+
+    {{else if eq .Type "phone"}}
+    <label for="{{.Name}}">{{.Name}}</label>
+    <input class="field" type="tel" name="{{.Name}}" id="{{.Name}}" required="{{.Required}}" placeholder="{{.Default}}">
+
+    {{else if eq .Type "number"}}
+    <label for="{{.Name}}">{{.Name}}</label>
+    <input class="field" type="number" name="{{.Name}}" id="{{.Name}}" required="{{.Required}}" placeholder="{{.Default}}">
+
+    {{else if eq .Type "submit"}}
+    <button class="default-button" type="submit">{{.Name}}</button>
+
+    {{else}}
+    <label for="{{.Name}}">{{.Name}}</label>
+    <input class="field" type="text" name="{{.Name}}" id="{{.Name}}" required="{{.Required}}" placeholder="{{.Default}}">
+
+    {{end}}
+</div>
+
+{{end}}

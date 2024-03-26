@@ -1,0 +1,17 @@
+<!-- input -->
+<div class="input-section">
+    <h2 class="part-title">
+        {{._module.UIInputTitle}}
+    </h2>
+    <form action="" method="get">
+        {{template "frontend/views/partials/input-fields" ._module.UIFields}}
+    </form>
+</div>
+
+<!-- output -->
+<div class="output-section">
+    <h2 class="part-title">
+        {{._module.UIOutputTitle}}
+    </h2>
+    {{template "frontend/views/table" .}}
+</div>
