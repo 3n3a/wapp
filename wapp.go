@@ -116,6 +116,14 @@ type Config struct {
 
 	// path - Name Map
 	pathNameMap map[string]string `json:"-"`
+
+	// Debug Mode
+	//
+	// Activates multiple features regarding debugging
+	// Framework
+	//
+	// Default: false
+	DebugMode bool `json:"debug_mode"`
 }
 
 func (c *Config) GetCurrentPageTitle(curr string) string {
@@ -338,6 +346,9 @@ func New(config ...Config) *Wapp {
 	if wapp.config.CorsAllowOrigins == nil {
 		wapp.config.CorsAllowOrigins = []string{DefaultCorsAllowOrigins}
 	}
+	if wapp.config.DebugMode == false {
+		wapp.config.DebugMode = DefaultDebugMode
+	}	
 
 	// Init wapp
 	wapp.init()

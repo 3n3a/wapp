@@ -1,6 +1,8 @@
 {{template "frontend/views/partials/header" .}}
 
+{{if ._internal.DebugMode}}
 {{template "frontend/views/partials/debug" .}}
+{{end}}
 
 <div class="row-grow">
     {{template "frontend/views/partials/menu" .}}

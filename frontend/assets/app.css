@@ -40,6 +40,15 @@
     details[open] summary span > .close {
       display: block;
     }
+
+    summary {
+      outline: none;
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker {
+      display: none
+    }
   }
 
   .menu-container > details {
@@ -47,7 +56,7 @@
   }
 
   .menu-item {
-    @apply flex hover:bg-gray-600;
+    @apply pl-4 flex hover:bg-gray-600;
 
     .no-subnodes > svg {
       display: none !important;

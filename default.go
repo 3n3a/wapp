@@ -11,7 +11,7 @@ import (
 const (
 	DefaultName              string = "Wapp"
 	DefaultPort              uint16 = 3000
-	DefaultAddress           string = "127.0.0.1"
+	DefaultAddress           string = "0.0.0.0" // "127.0.0.1"
 	DefaultVersion           string = "v0.0.1"
 	DefaultCoreModules       string = "cache,recover,logger,compress"
 	DefaultCacheInclude      string = "/*"
@@ -20,7 +20,7 @@ const (
 	DefaultCorsAllowHeaders  string = ""
 	DefaultViewsPath         string = "frontend/views/"
 	DefaultMultipleProcesses bool   = false
-
+	DefaultDebugMode		 bool   = false
 )
 
 // Module Defaults
