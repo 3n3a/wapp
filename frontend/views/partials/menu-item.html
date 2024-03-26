@@ -3,9 +3,9 @@
 {{else}}
     <p>Menu not found</p>
 {{end}}
-{{range .}}
+{{range .SubNodes}}
     <details>
-    {{if .IsActive}}
+    {{if eq $.CurrentPath .FullPath}}
         <summary class="menu-item menu-item-active">
     {{else}}
         <summary class="menu-item">
@@ -23,7 +23,8 @@
 
         <div class="menu-children">
             {{if .SubNodes}}
-                {{template "frontend/views/partials/menu-item" .SubNodes}}
+                {{ $m := MenuSetCurrentPath . $.CurrentPath }}
+                {{template "frontend/views/partials/menu-item" $m}}
             {{end}}
         </div>
     </details>

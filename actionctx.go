@@ -79,7 +79,8 @@ func (ac *ActionCtx) renderHTML(data []utils.Map, templateName []string) error {
 		}
 
 		c := *ac.Locals("_internal").(*Config)
-		c.UpdateMenu(ac.Path())
+		c.Menu.CurrentPath = ac.Path()
+		c.CurrentTitle = c.GetCurrentPageTitle(c.Menu.CurrentPath)
 
 		dataMap := utils.Map{
 			"values":    data,
