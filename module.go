@@ -75,6 +75,7 @@ type UIField struct {
 	Default string `json:"default"`
 	Required bool `json:"required"`
 	Children []UIChild `json:"children"`
+	Placeholder string `json:"placeholder"`
 }
 
 // Module is the basic building block

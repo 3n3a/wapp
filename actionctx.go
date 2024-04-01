@@ -82,6 +82,10 @@ func (ac *ActionCtx) renderHTML(data []utils.Map, templateName []string) error {
 		c.Menu.CurrentPath = ac.Path()
 		currModule := c.GetCurrentModule(c.Menu.CurrentPath)
 
+		for i, field := range currModule.config.UIFields {
+			currModule.config.UIFields[i].Default = ac.FormValue(field.Name, field.Default)
+		}
+
 		dataMap := utils.Map{
 			"values":    data,
 			"_internal": c,

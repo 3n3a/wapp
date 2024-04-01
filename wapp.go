@@ -260,6 +260,11 @@ func (w *Wapp) processModules(modules []Module) []MenuNode {
 			)
 		}
 
+		if currModule.config.IsRoot {
+			// set name to app name
+			currModule.config.Name = w.config.Name
+		}
+
 		// menu
 		currNode := MenuNode{
 			Name: currModule.config.Name,
@@ -284,8 +289,15 @@ func (w *Wapp) processModules(modules []Module) []MenuNode {
 func (w *Wapp) Start() {
 	// process root
 	w.config.pathNameMap = make(map[string]Module)
+
 	rootNodes := w.processModules([]Module{w.rootModule})
-	w.config.Menu = rootNodes[0]
+	w.config.Menu =  rootNodes[0]
+	w.config.Menu.SubNodes = append([]MenuNode{
+		{
+			Name: "Home",
+			FullPath: "/",
+		},
+	}, w.config.Menu.SubNodes...)
 
 	// Start server
 	hostPort := net.JoinHostPort(w.config.Address, fmt.Sprint(w.config.Port))

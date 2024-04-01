@@ -1,17 +1,25 @@
 <table class="primary-table">
     <thead>
         <tr class="primary-table-tr">
+            {{if .values}}
             {{range $key, $value := index .values 0}}
                 <th class="primary-table-th">{{$key}}</th>
+            {{end}}
             {{end}}
         </tr>
     </thead>
     <tbody>
+        {{if .values}}
         {{range .values}}
             <tr class="primary-table-tr">
                 {{range $key, $value := .}}
                     <td class="primary-table-td">{{ $value }}</td>
                 {{end}}
+            </tr>
+        {{end}}
+        {{else}}
+            <tr class="primary-table-tr">
+                <td class="primary-table-td">Nothing was found.</td>
             </tr>
         {{end}}
     </tbody>

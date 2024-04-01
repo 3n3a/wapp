@@ -8,10 +8,10 @@
   }
   
   .header-sub {
-    @apply flex flex-row items-center gap-4;
+    @apply flex flex-row items-center gap-4 h-10;
     
     object {
-      @apply h-10 object-scale-down;
+      @apply w-10 h-10;
     }
   }
 
@@ -26,7 +26,7 @@
   }
 
   .menu-container {
-    @apply flex flex-row bg-gray-800 overflow-auto md:!flex md:max-w-64 md:z-auto md:relative z-50 fixed w-dvw h-dvh;
+    @apply flex flex-row bg-gray-800 overflow-auto md:!flex md:!flex-col md:max-w-64 md:z-auto md:relative z-50 fixed w-dvw h-dvh;
 
     /* Menu Tree List */
     details summary span > .close {

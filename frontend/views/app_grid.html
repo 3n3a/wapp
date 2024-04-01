@@ -1,0 +1,13 @@
+<div class="grid md:grid-cols-4 grid-cols-2 gap-4">
+    {{range ._internal.Menu.SubNodes}}
+        {{if ne .FullPath "/"}}
+        <span>
+            <a href="{{ .FullPath }}">
+                <div class="card">
+                    {{ .Name }}
+                </div>
+            </a>
+        </span>
+        {{end}}
+    {{end}}
+</div>

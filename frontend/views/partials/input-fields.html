@@ -8,7 +8,7 @@
 
     <!-- Input Types MDN: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types -->
     {{if eq .Type "dropdown"}}
-    <select class="form-input field" name="{{.Name}}" id="{{.Name}}"required="{{.Required}}" >
+    <select class="form-input field" name="{{.Name}}" id="{{.Name}}" required="{{.Required}}" >
     {{ $default := .Default }}
     {{range .Children}}
         {{if eq $default .Value}}
@@ -21,19 +21,19 @@
 
 
     {{else if eq .Type "email"}}
-    <input class="field" type="email" name="{{.Name}}" id="{{.Name}}" required="{{.Required}}" placeholder="{{.Default}}">
+    <input class="field" type="email" name="{{.Name}}" id="{{.Name}}" required="{{.Required}}" placeholder="{{.Placeholder}}" value="{{.Default}}">
 
     {{else if eq .Type "phone"}}
-    <input class="field" type="tel" name="{{.Name}}" id="{{.Name}}" required="{{.Required}}" placeholder="{{.Default}}">
+    <input class="field" type="tel" name="{{.Name}}" id="{{.Name}}" required="{{.Required}}" placeholder="{{.Placeholder}}" value="{{.Default}}">
 
     {{else if eq .Type "number"}}
-    <input class="field" type="number" name="{{.Name}}" id="{{.Name}}" required="{{.Required}}" placeholder="{{.Default}}">
+    <input class="field" type="number" name="{{.Name}}" id="{{.Name}}" required="{{.Required}}" placeholder="{{.Placeholder}}" value="{{.Default}}">
 
     {{else if eq .Type "submit"}}
     <button class="default-button" type="submit">{{.Name}}</button>
 
     {{else}}
-    <input class="field" type="text" name="{{.Name}}" id="{{.Name}}" required="{{.Required}}" placeholder="{{.Default}}">
+    <input class="field" type="text" name="{{.Name}}" id="{{.Name}}" required="{{.Required}}" placeholder="{{.Placeholder}}" value="{{.Default}}">
 
     {{end}}
 </div>

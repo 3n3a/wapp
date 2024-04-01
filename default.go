@@ -39,10 +39,14 @@ func DefaultRootModule() Module {
 		IsRoot:       true,
 	})
 
-	m.handler = func(c *fiber.Ctx) error {
-		return c.Status(200).
-			Render(DefaultViewsPath + "root", nil)
-	}
+	m.AddAction(
+		NewAction(func(ac *ActionCtx) error {
+			return ac.RenderDataByAcceptHeader(
+				nil,
+				"root",
+			)
+		}),
+	)
 
 	return m
 }
