@@ -121,6 +121,8 @@ type Config struct {
 	//
 	// Default: false
 	DebugMode bool `json:"debug_mode"`
+
+ // TODO: Base ActionCtx with ref to WappConfig and ref to Current Module (added in Module when creating handler)
 }
 
 func (c *Config) GetCurrentModule(curr string) Module {

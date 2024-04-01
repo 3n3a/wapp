@@ -149,6 +149,8 @@ func (m *Module) buildHandler() {
 		// build action ctx
 		// contains extended functions
 		// and attributes
+  // TODO: include ref to current module,
+  // access in action
 		actionCtx := &ActionCtx{
 			Ctx:   c,
 		}
