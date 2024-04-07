@@ -207,10 +207,16 @@ func (w *Wapp) init() {
 				// uses hash to prevent big urls / headers from affecting us
 				ogUrl := utils.CopyString(c.OriginalURL())
 				ogAcpt := utils.CopyString(c.Get("accept"))
+				hxBoosted := utils.CopyString(c.Get("hx-boosted", ""))
+				hxCurrent := utils.CopyString(c.Get("hx-current-url", ""))
+				hxReq := utils.CopyString(c.Get("hx-request", ""))
 				bytes := bytes.Join(
 					[][]byte{
 						[]byte(ogUrl),
 						[]byte(ogAcpt),
+						[]byte(hxBoosted),
+						[]byte(hxCurrent),
+						[]byte(hxReq),
 					},
 					[]byte("."),
 				)
