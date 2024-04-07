@@ -3,6 +3,7 @@ package wapp
 import (
 	"encoding/xml"
 	"errors"
+	// "fmt"
 	"strings"
 
 	"github.com/3n3a/wapp/internal/utils"
@@ -33,6 +34,8 @@ func (ac *ActionCtx) XMLWithHeader(data interface{}) error {
 
 // internal function that renders given data by a type
 func (ac *ActionCtx) renderDataByDataType(dataType DataType, data []utils.Map, templateName []string) error {
+	// fmt.Printf("%s: %#v\n", dataType, data)
+
 	switch dataType {
 	case DataTypeHTML:
 		return ac.renderHTML(data, templateName)

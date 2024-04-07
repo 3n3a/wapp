@@ -1,6 +1,8 @@
 package wapp
 
 import (
+	"bytes"
+	"crypto/sha256"
 	"embed"
 	"encoding/xml"
 	"errors"
@@ -21,6 +23,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/fiber/v2/utils"
 	"github.com/gofiber/template/html/v2"
 	"github.com/smirzaei/parallel"
 )
@@ -182,7 +185,6 @@ func (w *Wapp) init() {
 	
 	w.ffiber = fiber.New(fiberConfig)
 
-	// TODO: process all core modules
 	cacheDuration, err := time.ParseDuration(w.config.CacheDuration)
 	if slices.Contains(w.config.CoreModules, Cache) {
 		if err != nil {
@@ -193,6 +195,7 @@ func (w *Wapp) init() {
 				for _, pathMatch := range w.config.CacheInclude {
 					match, _ := regexp.MatchString(pathMatch, c.Path())
 					if match {
+						// fmt.Println("cached: ", match)
 						return false // cached
 					}
 				}
@@ -201,7 +204,22 @@ func (w *Wapp) init() {
 			Expiration:   cacheDuration,
 			CacheControl: true,
 			KeyGenerator: func(c *fiber.Ctx) string {
-				return c.OriginalURL()
+				// uses hash to prevent big urls / headers from affecting us
+				ogUrl := utils.CopyString(c.OriginalURL())
+				ogAcpt := utils.CopyString(c.Get("accept"))
+				bytes := bytes.Join(
+					[][]byte{
+						[]byte(ogUrl),
+						[]byte(ogAcpt),
+					},
+					[]byte("."),
+				)
+				key := sha256.New()
+				key.Write(bytes)
+				hash := key.Sum(nil)
+				hashStr := fmt.Sprintf("%x", hash)
+				// fmt.Println("key: ", hashStr)
+				return hashStr
 			},
 		}))
 	}
