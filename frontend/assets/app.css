@@ -146,6 +146,11 @@
     word-break: break-all;
   }
 
+
+  .link {
+    @apply underline text-blue-700;
+  }
+
   .link-button {
     @apply custom-wrap bg-lime-600 w-full p-2 text-white hover:drop-shadow-md rounded-md;
   }

@@ -13,7 +13,15 @@
         {{range .values}}
             <tr class="primary-table-tr">
                 {{range $key, $value := .}}
-                    <td class="primary-table-td">{{ $value }}</td>
+                    <td class="primary-table-td">
+                        {{if isIP $value}}
+                        <a class="link" href="/ip?ip_or_hostname={{ $value }}">{{ $value }}</a>
+                        {{else if isURL $value}}
+                        <a class="link" href="{{ $value }}">{{ $value }}</a>
+                        {{else}}
+                        <span>{{ $value }}</span>
+                        {{end}}
+                    </td>
                 {{end}}
             </tr>
         {{end}}
