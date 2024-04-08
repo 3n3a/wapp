@@ -274,17 +274,18 @@ func (w *Wapp) processModulesForMenu(modules []Module) []MenuNode {
 
 		// process submodules
 		subNodes := w.processModulesForMenu(currModule.submodules)
-		slices.SortFunc(subNodes, func(prev MenuNode, curr MenuNode) int {
-			if prev.Order < curr.Order {
-				return -1
-			}
+		// slices.SortFunc(subNodes, func(prev MenuNode, curr MenuNode) int {
+		// 	if prev.Order < curr.Order {
+		// 		return -1
+		// 	}
 
-			if prev.Order > curr.Order {
-				return 1
-			}
+		// 	if prev.Order > curr.Order {
+		// 		return 1
+		// 	}
 
-			return 0
-		})
+		// 	return 0
+		// })
+		// slices.Sort
 		currNode.SubNodes = subNodes
 
 		menuNodes = append(menuNodes, currNode)
