@@ -18,3 +18,11 @@ func StructToMap(obj interface{}) utils.Map {
 func StructArrToMaps(obj interface{}) []utils.Map {
 	return utils.StructArrToMaps(obj)
 }
+
+func IsUrl(input string) bool {
+	return utils.IsUrl(input)
+}
+
+func IsIP(input string) bool {
+	return utils.IsIP(input)
+}

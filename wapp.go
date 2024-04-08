@@ -25,6 +25,8 @@ import (
 	"github.com/gofiber/fiber/v2/utils"
 	"github.com/gofiber/template/html/v2"
 	"github.com/smirzaei/parallel"
+
+	_utils "github.com/3n3a/wapp/internal/utils"
 )
 
 //go:embed frontend/views/*
@@ -158,6 +160,9 @@ func (w *Wapp) init() {
 	// Additional Functions for use in template
 	engine.Funcmap["hasPrefix"] = strings.HasPrefix
 	engine.Funcmap["MenuSetCurrentPath"] = MenuSetCurrentPath
+	engine.Funcmap["isURL"] = _utils.IsURLInterface
+	engine.Funcmap["isIP"] = _utils.IsIPInterface
+	engine.Funcmap["isString"] = _utils.IsString	
 
 	fiberConfig.Views = engine
 	fiberConfig.ViewsLayout = "frontend/views/layout"

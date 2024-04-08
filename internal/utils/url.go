@@ -36,3 +36,16 @@ func UrlGetHostname(inputUrl string) (string, error) {
 
 	return url.Hostname(), nil
 }
+
+
+func IsURLInterface(input interface{}) bool {
+	if IsString(input) {
+		return IsUrl(input.(string))
+	}
+	return false
+}
+
+func IsUrl(input string) (bool) {
+	_, err := goada.New(input)
+	return err == nil
+}

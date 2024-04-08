@@ -3,20 +3,20 @@ package utils
 // IsString - tests if "val" is of type "string"
 // 
 // When is string: returns val cast into string
-func IsString(val interface{}) (string, bool) {
-	if str, ok := val.(string); ok {
-		return str, true
+func IsString(val interface{}) (bool) {
+	if _, ok := val.(string); ok {
+		return true
 	}
-	return "", false
+	return false
 }
 
 // IsMap - tests if "val" is of type "Map"
 // 
 // When is map: returns val cast into Map
-func IsMap(val interface{}) (Map, bool) {
-	if m, ok := val.(Map); ok {
-		return m, true
+func IsMap(val interface{}) (bool) {
+	if _, ok := val.(Map); ok {
+		return true
 	}
 
-	return nil, false
+	return false
 }
