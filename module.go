@@ -37,6 +37,11 @@ type ModuleConfig struct {
 	// Default: "HTML"
 	DataType string `json:"data_type"`
 
+	// Order by Value
+	// lower = on top
+	// higher = on bottom
+	Order int `json:"order"`
+
 	// FullPath is the full path for registering as handler
 	//
 	// Calculated
@@ -142,7 +147,7 @@ func (m *Module) AddAction(action Action) {
 	m.Action = action
 }
 
-func (m *Module) buildHandler() {
+func (m *Module) buildHandler(wappConfig Config) {
 	// bundle together the actions and create one function AKA the handler
 	m.handler = func(c *fiber.Ctx) error {
 		logger := c.Context().Logger()
@@ -150,10 +155,10 @@ func (m *Module) buildHandler() {
 		// build action ctx
 		// contains extended functions
 		// and attributes
-  // TODO: include ref to current module,
-  // access in action
 		actionCtx := &ActionCtx{
 			Ctx:   c,
+			ModuleConfig: m.config,
+			WappConfig: wappConfig,
 		}
 
 		// main actions
@@ -170,13 +175,13 @@ func (m *Module) buildHandler() {
 }
 
 // OnBeforeProcess Executed when module is processed
-func (m *Module) OnBeforeProcess() {
+func (m *Module) OnBeforeProcess(config Config) {
 	// Handle all generation cases
 	// based on values that can be
 	// configured before bein made into fiber app
 
 	// create handler function
-	m.buildHandler()
+	m.buildHandler(config)
 }
 
 func (m *Module) GetFullPath() string {

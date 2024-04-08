@@ -15,7 +15,6 @@ import (
 	"strings"
 	"time"
 
-	configpassing "github.com/3n3a/wapp/internal/middleware/config-passing"
 	fiber "github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/compress"
@@ -43,11 +42,12 @@ var staticfs embed.FS
 // and also offers custom functions which are generally useful
 
 type MenuNode struct {
-	Name string `json:"name"`
+	Name     string `json:"name"`
 	FullPath string `json:"full_path"`
+	Order    int    `json:"order"`
 
 	SubNodes []MenuNode `json:"sub_nodes"`
-	
+
 	CurrentPath string `json:"current_path"`
 }
 
@@ -114,9 +114,6 @@ type Config struct {
 	// internal menu tree
 	Menu MenuNode `json:"menu"`
 
-	// path - Name Map
-	pathNameMap map[string]Module `json:"-"`
-
 	// Debug Mode
 	//
 	// Activates multiple features regarding debugging
@@ -125,11 +122,7 @@ type Config struct {
 	// Default: false
 	DebugMode bool `json:"debug_mode"`
 
- // TODO: Base ActionCtx with ref to WappConfig and ref to Current Module (added in Module when creating handler)
-}
-
-func (c *Config) GetCurrentModule(curr string) Module {
-	return c.pathNameMap[curr]
+	// TODO: Base ActionCtx with ref to WappConfig and ref to Current Module (added in Module when creating handler)
 }
 
 // Wapp is the main object for interacting with this library
@@ -172,17 +165,16 @@ func (w *Wapp) init() {
 	// Error Handling
 	fiberConfig.ErrorHandler = w.errorModule.errorHandler
 
-	// TODO: allow custom fiber config
 	fiberConfig.ServerHeader = "Wapp"
 	fiberConfig.AppName = w.config.Name + " " + w.config.Version
-	
+
 	// Encoders
 	fiberConfig.XMLEncoder = func(v interface{}) ([]byte, error) {
 		prefix := ""
 		indent := "    "
 		return xml.MarshalIndent(v, prefix, indent)
 	}
-	
+
 	w.ffiber = fiber.New(fiberConfig)
 
 	cacheDuration, err := time.ParseDuration(w.config.CacheDuration)
@@ -202,7 +194,7 @@ func (w *Wapp) init() {
 				return true // not cached
 			},
 			Expiration:   cacheDuration,
-			CacheControl: true,
+			CacheControl: false,
 			KeyGenerator: func(c *fiber.Ctx) string {
 				// uses hash to prevent big urls / headers from affecting us
 				ogUrl := utils.CopyString(c.OriginalURL())
@@ -245,10 +237,6 @@ func (w *Wapp) init() {
 		}))
 	}
 
-	w.ffiber.Use(configpassing.New[Config](configpassing.Config[Config]{
-		WappConfig: &w.config,
-	}))
-
 	// embedded fs
 	w.ffiber.Use("/public", filesystem.New(filesystem.Config{
 		Root:       http.FS(staticfs),
@@ -263,11 +251,46 @@ func (w *Wapp) init() {
 
 // recursively process all submodules and create tree
 // executed at startup :)
-func (w *Wapp) processModules(modules []Module) []MenuNode {
+func (w *Wapp) processModulesForMenu(modules []Module) []MenuNode {
 	menuNodes := []MenuNode{}
 
 	parallel.ForEach(modules, func(currModule Module) {
-		currModule.OnBeforeProcess()
+		if currModule.config.IsRoot {
+			// set name to app name
+			currModule.config.Name = w.config.Name
+		}
+
+		// menu
+		currNode := MenuNode{
+			Name:     currModule.config.Name,
+			FullPath: currModule.GetFullPath(),
+			Order:    currModule.config.Order,
+		}
+
+		// process submodules
+		subNodes := w.processModulesForMenu(currModule.submodules)
+		slices.SortFunc(subNodes, func(prev MenuNode, curr MenuNode) int {
+			if prev.Order < curr.Order {
+				return -1
+			}
+
+			if prev.Order > curr.Order {
+				return 1
+			}
+
+			return 0
+		})
+		currNode.SubNodes = subNodes
+
+		menuNodes = append(menuNodes, currNode)
+	})
+
+	return menuNodes
+}
+
+func (w *Wapp) processModulesForHandler(modules []Module) {
+	for _, currModule := range modules {
+		currModule.OnBeforeProcess(w.config)
 
 		// ...processing
 		if currModule.config.Method == HTTPMethodAll {
@@ -284,44 +307,26 @@ func (w *Wapp) processModules(modules []Module) []MenuNode {
 			)
 		}
 
-		if currModule.config.IsRoot {
-			// set name to app name
-			currModule.config.Name = w.config.Name
-		}
-
-		// menu
-		currNode := MenuNode{
-			Name: currModule.config.Name,
-			FullPath: currModule.GetFullPath(),
-		}
-
-		// add to map for easy retrieval
-		w.config.pathNameMap[currNode.FullPath] = currModule
-
-		// process submodules
-		subNodes := w.processModules(currModule.submodules)
-		currNode.SubNodes = subNodes
-		
-		menuNodes = append(menuNodes, currNode)
-	})
-
-	return menuNodes
+		// submodules
+		w.processModulesForHandler(currModule.submodules)
+	}
 }
 
 // Start needs to be executed
 // after registering all the modules
 func (w *Wapp) Start() {
 	// process root
-	w.config.pathNameMap = make(map[string]Module)
-
-	rootNodes := w.processModules([]Module{w.rootModule})
-	w.config.Menu =  rootNodes[0]
+	rootNodes := w.processModulesForMenu([]Module{w.rootModule})
+	w.config.Menu = rootNodes[0]
 	w.config.Menu.SubNodes = append([]MenuNode{
 		{
-			Name: "Home",
+			Name:     "Home",
 			FullPath: "/",
 		},
 	}, w.config.Menu.SubNodes...)
+
+	// process handlers
+	w.processModulesForHandler([]Module{w.rootModule})
 
 	// Start server
 	hostPort := net.JoinHostPort(w.config.Address, fmt.Sprint(w.config.Port))
@@ -383,7 +388,7 @@ func New(config ...Config) *Wapp {
 	}
 	if wapp.config.DebugMode == false {
 		wapp.config.DebugMode = DefaultDebugMode
-	}	
+	}
 
 	// Init wapp
 	wapp.init()

@@ -43,6 +43,7 @@ func DefaultRootModule() Module {
 		NewAction(func(ac *ActionCtx) error {
 			return ac.RenderDataByAcceptHeader(
 				nil,
+				nil,
 				"root",
 			)
 		}),

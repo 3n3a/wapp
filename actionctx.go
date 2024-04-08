@@ -3,11 +3,13 @@ package wapp
 import (
 	"encoding/xml"
 	"errors"
-	// "fmt"
+	"slices"
+
 	"strings"
 
 	"github.com/3n3a/wapp/internal/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/huandu/go-clone"
 )
 
 // Wrapper around fiber.Ctx
@@ -15,6 +17,9 @@ import (
 // aswell as other convenience attributes etc.
 type ActionCtx struct {
 	*fiber.Ctx
+
+	ModuleConfig ModuleConfig
+	WappConfig   Config
 }
 
 // Render XML with the xml.Header as a first line
@@ -33,8 +38,23 @@ func (ac *ActionCtx) XMLWithHeader(data interface{}) error {
 }
 
 // internal function that renders given data by a type
-func (ac *ActionCtx) renderDataByDataType(dataType DataType, data []utils.Map, templateName []string) error {
+func (ac *ActionCtx) renderDataByDataType(dataType DataType, data []utils.Map, displayColumns []string, templateName []string) error {
 	// fmt.Printf("%s: %#v\n", dataType, data)
+
+	// remove columns not for display
+	noInternal := []DataType{DataTypeJSON, DataTypeXML}
+	for _, currMap := range data {
+		for key, _ := range currMap {
+			if len(displayColumns) > 0 && !slices.Contains[[]string, string](displayColumns, key) {
+				delete(currMap, key)
+			}
+
+			if strings.HasPrefix(key, "_") && slices.Contains[[]DataType, DataType](noInternal, dataType) {
+				// internal AND specific datatype
+				delete(currMap, key)
+			}
+		}
+	}
 
 	switch dataType {
 	case DataTypeHTML:
@@ -63,12 +83,6 @@ func (ac *ActionCtx) renderXML(data []utils.Map) error {
 }
 
 func (ac *ActionCtx) renderJSON(data []utils.Map) error {
-	if dataMap, ok := utils.IsMap(data); ok {
-		if dataMap["_internal"] != nil {
-			delete(dataMap, "_internal")
-		}
-		return ac.JSON(dataMap)
-	}
 	return ac.JSON(data)
 }
 
@@ -81,23 +95,26 @@ func (ac *ActionCtx) renderHTML(data []utils.Map, templateName []string) error {
 			templateName_ = DefaultViewsPath + templateName_
 		}
 
-		c := *ac.Locals("_internal").(*Config)
+		c := clone.Clone(ac.WappConfig).(Config) // deep copy
 		c.Menu.CurrentPath = ac.Path()
-		currModule := c.GetCurrentModule(c.Menu.CurrentPath)
 
-		for i, field := range currModule.config.UIFields {
-			currModule.config.UIFields[i].Default = ac.FormValue(field.Name, field.Default)
+		moduleConfig := clone.Clone(ac.ModuleConfig).(ModuleConfig) // deep copy
+
+		for i, field := range moduleConfig.UIFields {
+			moduleConfig.UIFields[i].Default = ac.FormValue(field.Name, field.Default)
 		}
 
 		dataMap := utils.Map{
 			"values":    data,
 			"_internal": c,
-			"_module": currModule.GetConfig(),
+			"_module":   moduleConfig,
 		}
+
+		// fmt.Printf("%#v\n", dataMap)
 
 		if ac.Get("HX-Boosted", "false") == "true" {
 			// only send back "embed part"
-			return ac.Status(200).Render(templateName_, dataMap, DefaultViewsPath + "layout-hx")
+			return ac.Status(200).Render(templateName_, dataMap, DefaultViewsPath+"layout-hx")
 		} else {
 			return ac.Status(200).Render(templateName_, dataMap)
 		}
@@ -112,7 +129,7 @@ func (ac *ActionCtx) renderHTML(data []utils.Map, templateName []string) error {
 //
 // Wrapper around ActionCtx.renderDataByDataType().
 // See under enum.go for possible DataType's.
-func (ac *ActionCtx) RenderDataByAcceptHeader(data []utils.Map, templateName ...string) error {
+func (ac *ActionCtx) RenderDataByAcceptHeader(data []utils.Map, displayColumns []string, templateName ...string) error {
 	// This is the part that devices which DataType gets used
 	// specifically the Accepts() function
 	dataType := DataType(
@@ -123,12 +140,12 @@ func (ac *ActionCtx) RenderDataByAcceptHeader(data []utils.Map, templateName ...
 		),
 	)
 
-	return ac.renderDataByDataType(dataType, data, templateName)
+	return ac.renderDataByDataType(dataType, data, displayColumns, templateName)
 }
 
 // RenderData based on DataType
 //
 // Set "data.values" field to []utils.Map for "table" template
 func (ac *ActionCtx) RenderData(dataType DataType, data []utils.Map, templateName ...string) error {
-	return ac.renderDataByDataType(dataType, data, templateName)
+	return ac.renderDataByDataType(dataType, data, nil, templateName)
 }
